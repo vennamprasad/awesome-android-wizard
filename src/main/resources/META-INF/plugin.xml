@@ -1,19 +1,32 @@
 <idea-plugin>
     <id>com.developer.awesomeandroidwizard</id>
     <name>Awesome Android Wizard</name>
-    <vendor email="support@example.com" url="https://github.com/developer/awesome-android-wizard">Awesome Dev Team</vendor>
+    <vendor email="vennamprasad@gmail.com" url="https://github.com/vennamprasad/awesome-android-wizard">Prasad Vennam</vendor>
 
     <description><![CDATA[
       <h1>Awesome Android Project Wizard</h1>
-      <p>A powerhouse project generator for Android Studio that scaffolds enterprise-ready Android applications in seconds.</p>
+      <p>An interactive, enterprise-grade project and module scaffolding platform for <b>Android Studio</b> and <b>IntelliJ IDEA</b>.</p>
       <ul>
-        <li><b>Multi-Module Architecture:</b> :app, :core:model, :core:data, :core:network, :core:ui, :core:designsystem, :feature:home</li>
+        <li><b>Multi-Module Architecture:</b> :app, :core:model, :core:data, :core:network, :core:database, :core:testing, :core:ui, :core:designsystem, :feature:*</li>
         <li><b>Gradle Convention Plugins:</b> Modern <code>build-logic</code> setup sharing compiler and plugins logic across modules</li>
         <li><b>Version Catalog:</b> Clean <code>gradle/libs.versions.toml</code> configured with latest stable dependencies</li>
         <li><b>Jetpack Compose & Material 3:</b> Edge-to-edge support, custom design tokens, and components</li>
         <li><b>Configurable Tech Stack:</b> Hilt vs Koin, Ktor vs Retrofit, Room database, Coroutines & Flow</li>
+        <li><b>Project Doctor & Guard:</b> Architectural dependency enforcement and automated Git hooks</li>
       </ul>
     ]]></description>
+
+    <change-notes><![CDATA[
+      <h3>1.0.0 - Initial Release</h3>
+      <ul>
+        <li>Initial release of Awesome Android Wizard on JetBrains Marketplace.</li>
+        <li>Multi-step interactive wizard supporting Clean Architecture MVI & MVVM.</li>
+        <li>Choice of Dependency Injection (Hilt or Koin) and Networking (Ktor or Retrofit).</li>
+        <li>Day-2 Feature and Core module scaffolders with automatic Gradle wiring.</li>
+        <li>Integrated Awesome Project Doctor for diagnostics and architectural boundary enforcement.</li>
+        <li>Pre-configured Git pre-commit hooks and GitHub Actions CI workflow.</li>
+      </ul>
+    ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
