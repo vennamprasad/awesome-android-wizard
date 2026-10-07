@@ -1,0 +1,62 @@
+<idea-plugin>
+    <id>com.developer.awesomeandroidwizard</id>
+    <name>Awesome Android Wizard</name>
+    <vendor email="support@example.com" url="https://github.com/developer/awesome-android-wizard">Awesome Dev Team</vendor>
+
+    <description><![CDATA[
+      <h1>Awesome Android Project Wizard</h1>
+      <p>A powerhouse project generator for Android Studio that scaffolds enterprise-ready Android applications in seconds.</p>
+      <ul>
+        <li><b>Multi-Module Architecture:</b> :app, :core:model, :core:data, :core:network, :core:ui, :core:designsystem, :feature:home</li>
+        <li><b>Gradle Convention Plugins:</b> Modern <code>build-logic</code> setup sharing compiler and plugins logic across modules</li>
+        <li><b>Version Catalog:</b> Clean <code>gradle/libs.versions.toml</code> configured with latest stable dependencies</li>
+        <li><b>Jetpack Compose & Material 3:</b> Edge-to-edge support, custom design tokens, and components</li>
+        <li><b>Configurable Tech Stack:</b> Hilt vs Koin, Ktor vs Retrofit, Room database, Coroutines & Flow</li>
+      </ul>
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+    <depends>com.intellij.modules.java</depends>
+
+    <actions>
+        <action id="com.developer.awesomeandroidwizard.action.NewAwesomeProjectAction"
+                class="com.developer.awesomeandroidwizard.action.NewAwesomeProjectAction"
+                text="New Awesome Android Project..."
+                description="Scaffold a modern multi-module Jetpack Compose Android project"
+                icon="AllIcons.General.Add">
+            <add-to-group group-id="NewGroup" anchor="first"/>
+            <add-to-group group-id="WelcomeScreen.QuickStart" anchor="first"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift A"/>
+        </action>
+
+        <action id="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"
+                class="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"
+                text="Awesome Feature Module..."
+                description="Scaffold a new decoupled feature module in the current Android project"
+                icon="AllIcons.Nodes.Module">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="com.developer.awesomeandroidwizard.action.NewAwesomeProjectAction"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift F"/>
+        </action>
+
+        <action id="com.developer.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"
+                class="com.developer.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"
+                text="Awesome Core Module..."
+                description="Scaffold a new decoupled core submodule (JVM, Android, or Compose) in the current Android project"
+                icon="AllIcons.Nodes.Plugin">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift C"/>
+        </action>
+
+        <action id="com.developer.awesomeandroidwizard.action.ProjectDoctorAction"
+                class="com.developer.awesomeandroidwizard.action.ProjectDoctorAction"
+                text="Awesome Project Doctor..."
+                description="Audit Android project health, Gradle conventions, and SDK setup"
+                icon="AllIcons.General.InspectionsEye">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift D"/>
+        </action>
+    </actions>
+</idea-plugin>

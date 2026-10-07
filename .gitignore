@@ -1,0 +1,33 @@
+# Gradle build artifacts and caches
+.gradle/
+.intellijPlatform/
+build/
+out/
+
+# Kotlin compiler daemon
+.kotlin/
+
+# IntelliJ IDEA project files
+*.iml
+.idea/
+!.idea/runConfigurations/
+
+# Bytecode and compiled classes
+*.class
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows system files
+Thumbs.db
+ehthumbs.db
+
+# Log and crash dump files
+*.log
+*.hprof
+hs_err_pid*
+replay_pid*
