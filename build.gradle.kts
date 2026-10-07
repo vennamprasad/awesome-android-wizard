@@ -66,6 +66,10 @@ intellijPlatform {
                 <li>Pre-configured Git pre-commit hooks and GitHub Actions CI workflow.</li>
             </ul>
         """.trimIndent()
+        ideaVersion {
+            sinceBuild = "241"
+            untilBuild = provider { null }
+        }
     }
 
     publishing {
