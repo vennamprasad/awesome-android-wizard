@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.developer.awesomeandroidwizard"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -33,7 +33,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "com.developer.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.0"
+        version = "1.0.1"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -56,6 +56,12 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.0.1 - Compatibility Update</h3>
+            <ul>
+                <li>Expanded IDE compatibility across all modern IDE releases: IntelliJ IDEA (2024.1+, 2024.2+, 2024.3+, 2025.x, 2026.x) and Android Studio (Koala, Ladybug, Meerkat, Rabbit).</li>
+                <li>Removed until-build barrier for forward compatibility.</li>
+                <li>Added custom vector icon and design system refinements.</li>
+            </ul>
             <h3>1.0.0 - Initial Release</h3>
             <ul>
                 <li>Initial release of Awesome Android Wizard on JetBrains Marketplace.</li>
