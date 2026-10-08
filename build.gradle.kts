@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,6 @@ repositories {
 dependencies {
     intellijPlatform {
         create("IC", "2024.1.4")
-        bundledPlugin("com.intellij.java")
         pluginVerifier()
         zipSigner()
     }
@@ -33,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.1"
+        version = "1.0.2"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -56,6 +55,12 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.0.2 - Universal Compatibility & Android Studio Native Support</h3>
+            <ul>
+                <li>Removed strict Java module requirement, ensuring native compatibility with Android Studio (Koala, Ladybug, Meerkat, Rabbit 1 2026.2+) and IntelliJ IDEA (2024.1 - 2026.x+).</li>
+                <li>Updated namespace and action bindings to prasad.vennam.awesomeandroidwizard.</li>
+                <li>Zero upper-bound limit for forward compatibility across all future IDE releases.</li>
+            </ul>
             <h3>1.0.1 - Compatibility Update</h3>
             <ul>
                 <li>Expanded IDE compatibility across all modern IDE releases: IntelliJ IDEA (2024.1+, 2024.2+, 2024.3+, 2025.x, 2026.x) and Android Studio (Koala, Ladybug, Meerkat, Rabbit).</li>
