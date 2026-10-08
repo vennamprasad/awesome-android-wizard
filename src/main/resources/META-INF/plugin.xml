@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>com.developer.awesomeandroidwizard</id>
+    <id>prasad.vennam.awesomeandroidwizard</id>
     <name>Awesome Android Wizard</name>
     <vendor email="vennamprasad@gmail.com" url="https://github.com/vennamprasad/awesome-android-wizard">Prasad Vennam</vendor>
 
@@ -38,8 +38,8 @@
     <depends>com.intellij.modules.java</depends>
 
     <actions>
-        <action id="com.developer.awesomeandroidwizard.action.NewAwesomeProjectAction"
-                class="com.developer.awesomeandroidwizard.action.NewAwesomeProjectAction"
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeProjectAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeProjectAction"
                 text="New Awesome Android Project..."
                 description="Scaffold a modern multi-module Jetpack Compose Android project"
                 icon="AllIcons.General.Add">
@@ -49,28 +49,28 @@
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift A"/>
         </action>
 
-        <action id="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"
-                class="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"
                 text="Awesome Feature Module..."
                 description="Scaffold a new decoupled feature module in the current Android project"
                 icon="AllIcons.Nodes.Module">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="com.developer.awesomeandroidwizard.action.NewAwesomeProjectAction"/>
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeProjectAction"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift F"/>
         </action>
 
-        <action id="com.developer.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"
-                class="com.developer.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"
                 text="Awesome Core Module..."
                 description="Scaffold a new decoupled core submodule (JVM, Android, or Compose) in the current Android project"
                 icon="AllIcons.Nodes.Plugin">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="com.developer.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift C"/>
         </action>
 
-        <action id="com.developer.awesomeandroidwizard.action.ProjectDoctorAction"
-                class="com.developer.awesomeandroidwizard.action.ProjectDoctorAction"
+        <action id="prasad.vennam.awesomeandroidwizard.action.ProjectDoctorAction"
+                class="prasad.vennam.awesomeandroidwizard.action.ProjectDoctorAction"
                 text="Awesome Project Doctor..."
                 description="Audit Android project health, Gradle conventions, and SDK setup"
                 icon="AllIcons.General.InspectionsEye">

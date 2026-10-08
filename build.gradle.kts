@@ -4,7 +4,7 @@ plugins {
     id("org.jetbrains.intellij.platform") version "2.2.1"
 }
 
-group = "com.developer.awesomeandroidwizard"
+group = "prasad.vennam.awesomeandroidwizard"
 version = "1.0.1"
 
 repositories {
@@ -31,7 +31,7 @@ kotlin {
 
 intellijPlatform {
     pluginConfiguration {
-        id = "com.developer.awesomeandroidwizard"
+        id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
         version = "1.0.1"
         vendor {
