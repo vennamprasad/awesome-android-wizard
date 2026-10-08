@@ -4,6 +4,7 @@ import prasad.vennam.awesomeandroidwizard.model.ArchetypeBlueprint
 import prasad.vennam.awesomeandroidwizard.model.WizardModel
 import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.ui.ComboBox
+import com.intellij.openapi.ui.TextBrowseFolderListener
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
@@ -36,12 +37,11 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
         border = BorderFactory.createEmptyBorder(15, 20, 15, 20)
 
         locationField.text = model.projectLocation
-        locationField.addBrowseFolderListener(
-            "Select Project Location",
-            "Choose directory where the project will be created",
-            null,
-            FileChooserDescriptorFactory.createSingleFolderDescriptor()
-        )
+        val folderDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor().apply {
+            title = "Select Project Location"
+            description = "Choose directory where the project will be created"
+        }
+        locationField.addBrowseFolderListener(TextBrowseFolderListener(folderDescriptor))
 
         minSdkCombo.selectedItem = model.minSdk
         targetSdkCombo.selectedItem = model.targetSdk
