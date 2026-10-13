@@ -40,7 +40,7 @@ data class WizardModel(
     var projectLocation: String = System.getProperty("user.home") + "/AndroidStudioProjects/MyAwesomeApp",
     var minSdk: Int = 26,
     var targetSdk: Int = 35,
-    var compileSdk: Int = 35,
+    var compileSdk: Int = 37,
     var archetype: ArchetypeBlueprint = ArchetypeBlueprint.STARTUP,
     var architecture: ArchitectureType = ArchitectureType.MODULAR_CLEAN_MVI,
     var diFramework: DiFramework = DiFramework.KOIN,

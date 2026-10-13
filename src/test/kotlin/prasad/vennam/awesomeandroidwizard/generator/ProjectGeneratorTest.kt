@@ -26,7 +26,7 @@ class ProjectGeneratorTest {
             projectLocation = targetDir.absolutePath,
             minSdk = 26,
             targetSdk = 35,
-            compileSdk = 35,
+            compileSdk = 37,
             architecture = ArchitectureType.MODULAR_CLEAN_MVI,
             diFramework = DiFramework.KOIN,
             networking = NetworkingFramework.KTOR,

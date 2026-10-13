@@ -28,7 +28,7 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
     private val packageField = JBTextField(model.packageName)
     private val locationField = TextFieldWithBrowseButton()
     private val minSdkCombo = ComboBox(arrayOf(24, 26, 28, 30, 33, 34, 35))
-    private val targetSdkCombo = ComboBox(arrayOf(34, 35))
+    private val targetSdkCombo = ComboBox(arrayOf(34, 35, 36, 37))
 
     private val ciCheckBox = JBCheckBox("Scaffold GitHub Actions CI (.github/workflows)", model.generateCiWorkflow)
     private val detektCheckBox = JBCheckBox("Configure Detekt & Compose Lints", model.generateDetekt)
@@ -159,7 +159,7 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
         targetSdkCombo.addActionListener {
             val target = targetSdkCombo.selectedItem as? Int ?: 35
             model.targetSdk = target
-            model.compileSdk = target
+            model.compileSdk = maxOf(target, 37)
         }
     }
 }

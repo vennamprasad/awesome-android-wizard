@@ -89,7 +89,7 @@ plugins {
 
 android {
     namespace = "$basePackage.core.$sanitized"
-    compileSdk = 35
+    compileSdk = 37
     defaultConfig { minSdk = 26 }
 }
 
@@ -130,7 +130,7 @@ plugins {
 
 android {
     namespace = "$basePackage.core.$sanitized"
-    compileSdk = 35
+    compileSdk = 37
     defaultConfig { minSdk = 26 }
     buildFeatures { compose = true }
 }
