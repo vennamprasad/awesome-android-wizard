@@ -98,6 +98,7 @@ intellijPlatform {
 
     publishing {
         token = providers.environmentVariable("JETBRAINS_MARKETPLACE_TOKEN")
+            .orElse(providers.gradleProperty("publishToken"))
     }
 }
 
