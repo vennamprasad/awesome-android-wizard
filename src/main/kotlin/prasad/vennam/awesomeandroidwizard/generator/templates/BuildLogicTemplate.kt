@@ -63,16 +63,18 @@ gradlePlugin {
 """.trimIndent()
 
     fun generateKotlinAndroidExtension(model: WizardModel): String = """
-import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 internal fun Project.configureKotlinAndroid(
-    commonExtension: CommonExtension<*, *, *, *, *, *>,
+    applicationExtension: ApplicationExtension,
 ) {
-    commonExtension.apply {
+    applicationExtension.apply {
         compileSdk = ${model.compileSdk}
 
         defaultConfig {
@@ -87,8 +89,32 @@ internal fun Project.configureKotlinAndroid(
     }
 
     tasks.withType<KotlinCompile>().configureEach {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_17.toString()
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
+        }
+    }
+}
+
+internal fun Project.configureKotlinAndroid(
+    libraryExtension: LibraryExtension,
+) {
+    libraryExtension.apply {
+        compileSdk = ${model.compileSdk}
+
+        defaultConfig {
+            minSdk = ${model.minSdk}
+            testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
+
+        compileOptions {
+            sourceCompatibility = JavaVersion.VERSION_17
+            targetCompatibility = JavaVersion.VERSION_17
+        }
+    }
+
+    tasks.withType<KotlinCompile>().configureEach {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 }
@@ -105,7 +131,6 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("com.android.application")
-                apply("org.jetbrains.kotlin.android")
             }
 
             extensions.configure<ApplicationExtension> {
@@ -135,7 +160,6 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             with(pluginManager) {
                 apply("com.android.library")
-                apply("org.jetbrains.kotlin.android")
             }
 
             extensions.configure<LibraryExtension> {
@@ -147,23 +171,22 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
 """.trimIndent()
 
     fun generateAndroidComposeConventionPlugin(): String = """
-import com.android.build.api.dsl.CommonExtension
+import com.android.build.api.dsl.ApplicationExtension
+import com.android.build.api.dsl.LibraryExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.kotlin.dsl.getByType
 
 class AndroidComposeConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
-            val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
-
-            val commonExtension = extensions.findByName("android") as? CommonExtension<*, *, *, *, *, *>
-                ?: return
-
-            commonExtension.apply {
+            extensions.findByType(ApplicationExtension::class.java)?.apply {
+                buildFeatures {
+                    compose = true
+                }
+            }
+            extensions.findByType(LibraryExtension::class.java)?.apply {
                 buildFeatures {
                     compose = true
                 }
@@ -180,6 +203,7 @@ import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.withType
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 class JvmLibraryConventionPlugin : Plugin<Project> {
@@ -196,8 +220,8 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
             }
 
             tasks.withType<KotlinCompile>().configureEach {
-                kotlinOptions {
-                    jvmTarget = JavaVersion.VERSION_17.toString()
+                compilerOptions {
+                    jvmTarget.set(JvmTarget.JVM_17)
                 }
             }
         }

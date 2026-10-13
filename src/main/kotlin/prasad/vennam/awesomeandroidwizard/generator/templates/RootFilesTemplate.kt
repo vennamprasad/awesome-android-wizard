@@ -50,7 +50,6 @@ rootProject.name = "${model.projectName}"
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
 }
@@ -82,7 +81,7 @@ echo "✅ Pre-commit verification passed."
 
     fun generateGradleProperties(): String = """
 # Project-wide Gradle settings.
-org.gradle.jvmargs=-Xmx2048m -Dfile.encoding=UTF-8
+org.gradle.jvmargs=-Xmx8192m -Dfile.encoding=UTF-8
 org.gradle.caching=true
 org.gradle.parallel=true
 org.gradle.configuration-cache=true
@@ -95,12 +94,14 @@ android.enableJetifier=false
 
 # Kotlin code style
 kotlin.code.style=official
+# Enabled parallel sync for Gradle 9.4+
+org.gradle.tooling.parallel=true
 """.trimIndent()
 
     fun generateGradleWrapperProperties(): String = """
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-8.10.2-bin.zip
+distributionUrl=https\://services.gradle.org/distributions/gradle-9.8.1-bin.zip
 networkTimeout=60000
 validateDistributionUrl=false
 zipStoreBase=GRADLE_USER_HOME

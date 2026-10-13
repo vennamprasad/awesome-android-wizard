@@ -10,46 +10,46 @@ object VersionCatalogTemplate {
         val sb = StringBuilder()
         sb.appendLine("""
 [versions]
-agp = "8.6.0"
-kotlin = "2.0.21"
-coreKtx = "1.13.1"
-lifecycleRuntimeKtx = "2.8.6"
-activityCompose = "1.9.3"
-composeBom = "2024.10.00"
-navigationCompose = "2.8.3"
-coroutines = "1.9.0"
-serialization = "1.7.3"
-dataStore = "1.1.1"
+agp = "9.4.1"
+kotlin = "2.4.21"
+coreKtx = "1.19.1"
+lifecycleRuntimeKtx = "2.11.0"
+activityCompose = "1.13.0"
+composeBom = "2026.09.00"
+navigationCompose = "2.10.2"
+coroutines = "1.11.0"
+serialization = "1.11.0"
+dataStore = "1.2.1"
 """.trimIndent())
 
         if (model.diFramework == DiFramework.KOIN) {
             sb.appendLine("koin = \"4.0.0\"")
         } else {
-            sb.appendLine("hilt = \"2.52\"")
-            sb.appendLine("ksp = \"2.0.21-1.0.25\"")
+            sb.appendLine("hilt = \"2.60.1\"")
+            sb.appendLine("ksp = \"2.3.12\"")
         }
 
         if (model.networking == NetworkingFramework.KTOR) {
             sb.appendLine("ktor = \"3.0.0\"")
         } else {
-            sb.appendLine("retrofit = \"2.11.0\"")
-            sb.appendLine("okhttp = \"4.12.0\"")
+            sb.appendLine("retrofit = \"3.0.0\"")
+            sb.appendLine("okhttp = \"5.5.0\"")
         }
 
         val hasRoom = model.database == DatabaseFramework.ROOM || model.selectedCoreModules.any { it.contains("database") }
         if (hasRoom) {
-            sb.appendLine("room = \"2.6.1\"")
+            sb.appendLine("room = \"2.8.5\"")
             if (model.diFramework != DiFramework.HILT) {
-                sb.appendLine("ksp = \"2.0.21-1.0.25\"")
+                sb.appendLine("ksp = \"2.3.12\"")
             }
         }
 
         sb.appendLine("""
 junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-turbine = "1.2.0"
-mockk = "1.13.13"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
+turbine = "1.2.1"
+mockk = "1.14.11"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -82,7 +82,7 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"
             sb.appendLine("""
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.2.0" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.4.0" }
 """.trimIndent())
         }
 

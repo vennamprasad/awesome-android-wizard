@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.0.3"
+version = "1.0.4"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.3"
+        version = "1.0.4"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,6 +55,14 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.0.4 - Gradle 9 & AGP 9.4 Compatibility & Modern Build Logic</h3>
+            <ul>
+                <li>Upgraded Gradle wrapper to 9.8.1 and AGP to 9.4.1 for out-of-the-box build reliability.</li>
+                <li>Modernized build-logic convention plugins using ApplicationExtension/LibraryExtension and Kotlin 2.x compilerOptions.</li>
+                <li>Eliminated redundant kotlin.android plugin declarations and resolved extension type conflicts.</li>
+                <li>Updated Version Catalog with latest dependencies: Kotlin 2.4.21, Compose BOM 2026.09, Hilt 2.60, KSP 2.3, Retrofit 3, Room 2.8.</li>
+                <li>Optimized gradle.properties with 8GB heap, configuration caching, and parallel sync tooling.</li>
+            </ul>
             <h3>1.0.3 - Deprecated API Modernization</h3>
             <ul>
                 <li>Replaced deprecated addBrowseFolderListener with modern TextBrowseFolderListener.</li>

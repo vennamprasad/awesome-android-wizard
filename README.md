@@ -1,9 +1,9 @@
 # Awesome Android Project Wizard
 
 [![Platform](https://img.shields.io/badge/Platform-Android%20Studio%20%7C%20IntelliJ%20IDEA-3DDC84.svg?logo=android)](https://developer.android.com/studio)
-[![Gradle](https://img.shields.io/badge/Gradle-8.10.2-02303A.svg?logo=gradle)](https://gradle.org)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF.svg?logo=kotlin)](https://kotlinlang.org)
-[![Compose](https://img.shields.io/badge/Jetpack%20Compose-BOM%202024.10.00-4285F4.svg?logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
+[![Gradle](https://img.shields.io/badge/Gradle-9.8.1-02303A.svg?logo=gradle)](https://gradle.org)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.4.21-7F52FF.svg?logo=kotlin)](https://kotlinlang.org)
+[![Compose](https://img.shields.io/badge/Jetpack%20Compose-BOM%202026.09.00-4285F4.svg?logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 
 An enterprise-grade project and module scaffolding platform for **Android Studio** and **IntelliJ IDEA**. Enables mobile developers and engineering teams to generate production-ready, highly decoupled Android projects and feature modules with zero boilerplate.
 
@@ -244,7 +244,7 @@ gradle buildPlugin
 ## 💡 Troubleshooting & FAQ
 
 #### 1. "Could not install Gradle distribution... SocketTimeoutException"
-The plugin includes pre-configured `networkTimeout=60000` and `validateDistributionUrl=false` in `gradle-wrapper.properties`. If developing in an offline or restricted environment, ensure Gradle 8.10.2 binary is extracted in `~/.gradle/wrapper/dists/gradle-8.10.2-bin/`.
+The plugin includes pre-configured `networkTimeout=60000` and `validateDistributionUrl=false` in `gradle-wrapper.properties`. If developing in an offline or restricted environment, ensure Gradle 9.8.1 binary is extracted in `~/.gradle/wrapper/dists/gradle-9.8.1-bin/`.
 
 #### 2. "SDK location not found"
 The wizard automatically detects `ANDROID_HOME`, `ANDROID_SDK_ROOT`, or standard paths (`~/Library/Android/sdk` on macOS, `~/AppData/Local/Android/Sdk` on Windows) and generates a `local.properties` file with `sdk.dir` pointing to your local SDK.

@@ -120,8 +120,8 @@ class ProjectDoctorDialog(private val currentProject: Project?) : DialogWrapper(
             DiagnosticCheck(
                 "Gradle Wrapper & Tooling",
                 hasWrapper && is810,
-                if (hasWrapper && is810) "Gradle 8.10+ wrapper installed and configured."
-                else "Gradle wrapper missing or outdated. Recommended: Gradle 8.10.2."
+                if (hasWrapper && is810) "Gradle 9+ / 8.10+ wrapper installed and configured."
+                else "Gradle wrapper missing or outdated. Recommended: Gradle 9.8.1."
             )
         )
 
