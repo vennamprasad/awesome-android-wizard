@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.4"
+        version = "1.0.5"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,6 +55,12 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.0.5 - Android SDK 37 (Android 17) & Modern AndroidX AAR Compatibility</h3>
+            <ul>
+                <li>Updated default compileSdk to 37 to support latest AndroidX libraries (Compose BOM 2026.09, Navigation 2.10, Core-KTX 1.19, OkHttp 5.5, Activity 1.13, Hilt Navigation 1.4).</li>
+                <li>Resolved AAR metadata compileSdk 37 minimum version check failures across all generated modules and convention plugins.</li>
+                <li>Expanded Target SDK dropdown options to include Android 16 (36) and Android 17 (37).</li>
+            </ul>
             <h3>1.0.4 - Gradle 9 & AGP 9.4 Compatibility & Modern Build Logic</h3>
             <ul>
                 <li>Upgraded Gradle wrapper to 9.8.1 and AGP to 9.4.1 for out-of-the-box build reliability.</li>
