@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.0.9"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.9"
+        version = "1.1.0"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,6 +55,15 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.1.0 - Step-by-Step Wizard Two-Way Synchronization, Architecture Dependency Cascading & Enterprise Pre-Flight Validation</h3>
+            <ul>
+                <li><b>Wizard Two-Way State Synchronization:</b> Interactive live synchronization across all 5 wizard steps when switching architecture archetypes (Startup, Fintech, Minimal, Custom).</li>
+                <li><b>Prerequisite Dependency Auto-Cascading:</b> Intelligent resolution guaranteeing <code>:core:model</code>, <code>:core:data</code>, <code>:core:designsystem</code>, and <code>:core:ui</code> are scaffolded whenever dependent feature modules exist.</li>
+                <li><b>Minimal / Single-Module Archetype Hardening:</b> Standalone screen fallback and dynamic MaterialTheme resolution when features or designsystem modules are omitted.</li>
+                <li><b>Wear OS Companion Dependency Alignment:</b> Added Wear Tiles and Guava Android dependencies to Version Catalog for out-of-the-box tile compilation.</li>
+                <li><b>Cross-Platform Android SDK Diagnostics:</b> Enhanced Project Doctor candidate SDK path detection across Windows, macOS, and Linux.</li>
+                <li><b>Enterprise Pre-Flight Validation:</b> Validates project names, package names, Windows reserved device names (CON, PRN, AUX, etc.), and folder permissions.</li>
+            </ul>
             <h3>1.0.9 - Modular Component Scaffolders, Awesome Architecture Tool Window & Multiplatform Companion Modules</h3>
             <ul>
                 <li><b>Awesome Architecture Tool Window:</b> Interactive side panel with module dependency graph, Clean Architecture boundary auditor, circular dependency detection, and Version Catalog inspector.</li>
