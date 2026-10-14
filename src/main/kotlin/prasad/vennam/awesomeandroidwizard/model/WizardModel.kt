@@ -34,6 +34,78 @@ enum class ArchetypeBlueprint(val title: String, val subtitle: String) {
     CUSTOM("🛠 Custom Configuration", "Fine-tune every library, module, and architecture option individually")
 }
 
+enum class TargetFormFactor(val displayName: String, val description: String) {
+    MOBILE("Mobile (Phone)", "Edge-to-edge touch UI with bottom navigation"),
+    TABLET_FOLDABLE("Tablet & Foldables", "Dual-pane & Navigation Rail large-screen layouts"),
+    TV("Android TV", "D-pad navigation, Leanback manifest flags, and TV focus styles"),
+    UNIVERSAL_ADAPTIVE("Adaptive (Universal)", "Responsive layout dynamically adapting to Phone, Tablet & Foldable")
+}
+
+enum class ColorPreset(
+    val displayName: String,
+    val description: String,
+    val primaryLightHex: String,
+    val onPrimaryLightHex: String,
+    val primaryContainerLightHex: String,
+    val onPrimaryContainerLightHex: String,
+    val secondaryLightHex: String,
+    val primaryDarkHex: String,
+    val onPrimaryDarkHex: String,
+    val primaryContainerDarkHex: String,
+    val onPrimaryContainerDarkHex: String,
+    val secondaryDarkHex: String
+) {
+    DYNAMIC(
+        "Dynamic Material You",
+        "Uses user wallpaper palette on Android 12+ (falls back to Purple)",
+        "0xFF6750A4", "0xFFFFFFFF", "0xFFEADDFF", "0xFF21005D", "0xFF625B71",
+        "0xFFD0BCFF", "0xFF381E72", "0xFF4F378B", "0xFFEADDFF", "0xFFCCC2DC"
+    ),
+    OCEAN_BLUE(
+        "Ocean Blue",
+        "Calm and professional corporate blue tones",
+        "0xFF0061A4", "0xFFFFFFFF", "0xFFD1E4FF", "0xFF001D36", "0xFF535F70",
+        "0xFF9ECAFF", "0xFF003258", "0xFF00497D", "0xFFD1E4FF", "0xFFBBC7DB"
+    ),
+    EMERALD_GREEN(
+        "Emerald Green",
+        "Fresh, vibrant, eco and fintech-oriented green",
+        "0xFF006D44", "0xFFFFFFFF", "0xFF90F7BE", "0xFF002111", "0xFF4E6354",
+        "0xFF73DAA3", "0xFF003920", "0xFF005232", "0xFF90F7BE", "0xFFB4CCB8"
+    ),
+    VIBRANT_PURPLE(
+        "Vibrant Purple",
+        "Default Material 3 expressive purple aesthetic",
+        "0xFF6750A4", "0xFFFFFFFF", "0xFFEADDFF", "0xFF21005D", "0xFF625B71",
+        "0xFFD0BCFF", "0xFF381E72", "0xFF4F378B", "0xFFEADDFF", "0xFFCCC2DC"
+    ),
+    SUNSET_ORANGE(
+        "Sunset Orange",
+        "Warm, energetic social and consumer brand palette",
+        "0xFF984715", "0xFFFFFFFF", "0xFFFFDBCF", "0xFF360F00", "0xFF77574A",
+        "0xFFFFB598", "0xFF591D00", "0xFF793000", "0xFFFFDBCF", "0xFFE6BEAD"
+    ),
+    MIDNIGHT_MONO(
+        "Midnight Monochrome",
+        "Sleek, minimalist dark-slate & titanium palette",
+        "0xFF2B3137", "0xFFFFFFFF", "0xFFE1E4E8", "0xFF141618", "0xFF586069",
+        "0xFFC9D1D9", "0xFF161B22", "0xFF30363D", "0xFFE1E4E8", "0xFF8B949E"
+    )
+}
+
+enum class CornerStyle(
+    val displayName: String,
+    val description: String,
+    val smallDp: Int,
+    val mediumDp: Int,
+    val largeDp: Int,
+    val extraLargeDp: Int
+) {
+    ROUNDED("Rounded (Default Material 3)", "Standard balanced corners: 8dp, 12dp, 16dp, 28dp", 8, 12, 16, 28),
+    SOFT_PILL("Soft & Pill (Playful)", "Friendly, extra rounded contours: 12dp, 18dp, 24dp, 36dp", 12, 18, 24, 36),
+    SHARP("Sharp & Geometric (Technical)", "Crisp, square edges for modern tech apps: 2dp, 4dp, 6dp, 10dp", 2, 4, 6, 10)
+}
+
 data class WizardModel(
     var projectName: String = "MyAwesomeApp",
     var packageName: String = "com.example.myawesomeapp",
@@ -41,6 +113,9 @@ data class WizardModel(
     var minSdk: Int = 26,
     var targetSdk: Int = 35,
     var compileSdk: Int = 37,
+    var targetFormFactor: TargetFormFactor = TargetFormFactor.MOBILE,
+    var colorPreset: ColorPreset = ColorPreset.DYNAMIC,
+    var cornerStyle: CornerStyle = CornerStyle.ROUNDED,
     var archetype: ArchetypeBlueprint = ArchetypeBlueprint.STARTUP,
     var architecture: ArchitectureType = ArchitectureType.MODULAR_CLEAN_MVI,
     var diFramework: DiFramework = DiFramework.KOIN,

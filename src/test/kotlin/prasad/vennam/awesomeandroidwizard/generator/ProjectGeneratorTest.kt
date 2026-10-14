@@ -198,4 +198,38 @@ class ProjectGeneratorTest {
         assertTrue(settingsText.contains("include(\":core:analytics\")"))
         assertTrue(settingsText.contains("include(\":core:security\")"))
     }
+
+    @Test
+    fun testDeviceFormFactorAndThemeCustomization() {
+        val projectDir = tempFolder.newFolder("TvOceanApp")
+        val model = WizardModel(
+            projectName = "TvOceanApp",
+            packageName = "com.example.tvocean",
+            projectLocation = projectDir.absolutePath,
+            targetFormFactor = prasad.vennam.awesomeandroidwizard.model.TargetFormFactor.TV,
+            colorPreset = prasad.vennam.awesomeandroidwizard.model.ColorPreset.OCEAN_BLUE,
+            cornerStyle = prasad.vennam.awesomeandroidwizard.model.CornerStyle.SHARP,
+            featureModules = mutableSetOf("home")
+        )
+
+        val resultDir = ProjectGenerator.generate(model)
+
+        // 1. Verify AndroidManifest has TV Leanback entries
+        val manifestText = File(resultDir, "app/src/main/AndroidManifest.xml").readText()
+        assertTrue(manifestText.contains("android.software.leanback"))
+        assertTrue(manifestText.contains("LEANBACK_LAUNCHER"))
+
+        // 2. Verify MainActivity has TV Tab layout
+        val mainActivityText = File(resultDir, "app/src/main/kotlin/com/example/tvocean/MainActivity.kt").readText()
+        assertTrue(mainActivityText.contains("PrimaryTabRow"))
+
+        // 3. Verify Design System Color has Ocean Blue hex
+        val colorText = File(resultDir, "core/designsystem/src/main/kotlin/com/example/tvocean/core/designsystem/theme/Color.kt").readText()
+        assertTrue(colorText.contains("0xFF0061A4"))
+
+        // 4. Verify Design System Radius has Sharp corner constants (2.dp, 4.dp)
+        val radiusText = File(resultDir, "core/designsystem/src/main/kotlin/com/example/tvocean/core/designsystem/theme/Radius.kt").readText()
+        assertTrue(radiusText.contains("small: Dp = 2.dp"))
+        assertTrue(radiusText.contains("medium: Dp = 4.dp"))
+    }
 }

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.0.5"
+version = "1.0.6"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.5"
+        version = "1.0.6"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,6 +55,13 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.0.6 - Device Form Factor (Mobile/Tablet/TV/Adaptive) & Theme Customization</h3>
+            <ul>
+                <li>Added interactive 'Device & Theme Setup' wizard step.</li>
+                <li>Support for target form factors: Mobile (Phone), Tablet & Foldables (Navigation Rail), Android TV (D-pad Leanback & TabRow), and Universal Adaptive (BoxWithConstraints responsive layouts).</li>
+                <li>Customizable brand color palettes: Dynamic Material You, Ocean Blue, Emerald Green, Vibrant Purple, Sunset Orange, and Midnight Monochrome.</li>
+                <li>Configurable UI shape tokens: Rounded (Standard M3), Soft & Pill (Playful), and Sharp & Geometric (Technical).</li>
+            </ul>
             <h3>1.0.5 - Android SDK 37 (Android 17) & Modern AndroidX AAR Compatibility</h3>
             <ul>
                 <li>Updated default compileSdk to 37 to support latest AndroidX libraries (Compose BOM 2026.09, Navigation 2.10, Core-KTX 1.19, OkHttp 5.5, Activity 1.13, Hilt Navigation 1.4).</li>

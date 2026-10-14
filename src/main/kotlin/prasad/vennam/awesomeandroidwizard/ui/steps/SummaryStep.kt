@@ -42,6 +42,8 @@ class SummaryStep(private val model: WizardModel) : JPanel(BorderLayout()) {
             <table cellpadding='3' style='margin-top: 8px;'>
                 <tr><td><b>Project:</b></td><td>${model.projectName} (${model.packageName})</td></tr>
                 <tr><td><b>Architecture:</b></td><td>${model.architecture.displayName}</td></tr>
+                <tr><td><b>Device Target:</b></td><td>${model.targetFormFactor.displayName}</td></tr>
+                <tr><td><b>Theme & Palette:</b></td><td>${model.colorPreset.displayName} (${model.cornerStyle.displayName})</td></tr>
                 <tr><td><b>Features:</b></td><td>$featuresList</td></tr>
                 <tr><td><b>Tech Stack:</b></td><td>Compose M3 | ${model.diFramework.displayName} | ${model.networking.displayName}</td></tr>
                 <tr><td><b>Target Location:</b></td><td><code>${model.projectLocation}</code></td></tr>

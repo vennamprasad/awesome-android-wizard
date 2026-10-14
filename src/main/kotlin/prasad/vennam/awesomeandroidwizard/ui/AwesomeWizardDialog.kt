@@ -3,6 +3,7 @@ package prasad.vennam.awesomeandroidwizard.ui
 import prasad.vennam.awesomeandroidwizard.generator.ProjectGenerator
 import prasad.vennam.awesomeandroidwizard.model.WizardModel
 import prasad.vennam.awesomeandroidwizard.ui.steps.ArchitectureStep
+import prasad.vennam.awesomeandroidwizard.ui.steps.DeviceAndThemeStep
 import prasad.vennam.awesomeandroidwizard.ui.steps.ProjectBasicsStep
 import prasad.vennam.awesomeandroidwizard.ui.steps.SummaryStep
 import prasad.vennam.awesomeandroidwizard.ui.steps.TechStackStep
@@ -31,11 +32,12 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
 
     private val step1 = ProjectBasicsStep(model)
     private val step2 = ArchitectureStep(model)
-    private val step3 = TechStackStep(model)
-    private val step4 = SummaryStep(model)
+    private val step3 = DeviceAndThemeStep(model)
+    private val step4 = TechStackStep(model)
+    private val step5 = SummaryStep(model)
 
     private var currentStep = 0
-    private val totalSteps = 4
+    private val totalSteps = 5
 
     private lateinit var prevButton: JButton
     private lateinit var nextButton: JButton
@@ -55,6 +57,7 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
         contentPanel.add(step2, "1")
         contentPanel.add(step3, "2")
         contentPanel.add(step4, "3")
+        contentPanel.add(step5, "4")
 
         root.add(contentPanel, BorderLayout.CENTER)
         return root
@@ -106,14 +109,15 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
         // Enable OK button only on last step
         isOKActionEnabled = currentStep == totalSteps - 1
 
-        if (currentStep == 3) {
-            step4.refresh()
+        if (currentStep == 4) {
+            step5.refresh()
         }
 
         title = "Awesome Android Wizard (${currentStep + 1}/$totalSteps): " + when (currentStep) {
             0 -> "Project Basics"
             1 -> "Architecture & Modules"
-            2 -> "Tech Stack & Frameworks"
+            2 -> "Device & Theme Setup"
+            3 -> "Tech Stack & Frameworks"
             else -> "Review & Generate"
         }
     }

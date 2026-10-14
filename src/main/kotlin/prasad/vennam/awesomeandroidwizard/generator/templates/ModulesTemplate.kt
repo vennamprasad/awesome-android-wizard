@@ -1,8 +1,6 @@
 package prasad.vennam.awesomeandroidwizard.generator.templates
 
-import prasad.vennam.awesomeandroidwizard.model.DiFramework
-import prasad.vennam.awesomeandroidwizard.model.NetworkingFramework
-import prasad.vennam.awesomeandroidwizard.model.WizardModel
+import prasad.vennam.awesomeandroidwizard.model.*
 
 object ModulesTemplate {
 
@@ -116,16 +114,25 @@ dependencies {
         return pluginsBlock.trimIndent() + "\n" + dependenciesBlock.toString().trimIndent()
     }
 
-    fun generateAppManifest(model: WizardModel): String = """
+    fun generateAppManifest(model: WizardModel): String {
+        val isTv = model.targetFormFactor == TargetFormFactor.TV
+        val tvFeatures = if (isTv) """
+    <uses-feature android:name="android.software.leanback" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+""" else ""
+        val tvBanner = if (isTv) "android:banner=\"@android:drawable/sym_def_app_icon\"" else ""
+        val tvCategory = if (isTv) "                <category android:name=\"android.intent.category.LEANBACK_LAUNCHER\" />\n" else ""
+
+        return """
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-
+    <uses-permission android:name="android.permission.INTERNET" />$tvFeatures
     <application
         android:name=".AwesomeApplication"
         android:allowBackup="true"
         android:icon="@android:drawable/sym_def_app_icon"
+        $tvBanner
         android:label="${model.projectName}"
         android:roundIcon="@android:drawable/sym_def_app_icon"
         android:supportsRtl="true"
@@ -136,11 +143,12 @@ dependencies {
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+$tvCategory            </intent-filter>
         </activity>
     </application>
 </manifest>
 """.trimIndent()
+    }
 
     fun generateApplicationClass(model: WizardModel): String {
         return if (model.diFramework == DiFramework.KOIN) {
@@ -198,45 +206,97 @@ class AwesomeApplication : Application()
             "FeatureTab($index, \"$pascal\", $iconRef) { modifier -> ${pascal}Screen(modifier = modifier) }"
         }.joinToString(",\n                        ")
 
-        return """
-package ${model.packageName}
+        val isTv = model.targetFormFactor == TargetFormFactor.TV
+        val isTablet = model.targetFormFactor == TargetFormFactor.TABLET_FOLDABLE
+        val isAdaptive = model.targetFormFactor == TargetFormFactor.UNIVERSAL_ADAPTIVE
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import ${model.packageName}.core.designsystem.theme.AwesomeTheme
-import ${model.packageName}.core.designsystem.icon.AwesomeIcon
-import ${model.packageName}.core.designsystem.icon.AwesomeIcons
-import ${model.packageName}.core.designsystem.icon.AwesomeIconSource
-$imports
-${if (model.diFramework == DiFramework.HILT) "import dagger.hilt.android.AndroidEntryPoint" else ""}
+        val edgeToEdgeCall = if (!isTv) "enableEdgeToEdge()" else ""
 
-private data class FeatureTab(
-    val index: Int,
-    val title: String,
-    val icon: AwesomeIconSource,
-    val content: @Composable (Modifier) -> Unit
-)
-
-${hiltAnnotation}class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContent {
-            AwesomeTheme {
-                val tabs = remember {
-                    listOf(
-                        $itemsData
-                    )
+        val uiLayoutCode = when {
+            isTv -> """
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        if (tabs.size > 1) {
+                            PrimaryTabRow(selectedTabIndex = selectedTabIndex) {
+                                tabs.forEach { tab ->
+                                    Tab(
+                                        selected = selectedTabIndex == tab.index,
+                                        onClick = { selectedTabIndex = tab.index },
+                                        text = { Text(tab.title) }
+                                    )
+                                }
+                            }
+                        }
+                    }
+                ) { innerPadding ->
+                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
+                    currentTab.content(Modifier.padding(innerPadding))
                 }
-                var selectedTabIndex by remember { mutableIntStateOf(0) }
-
+            """.trimIndent()
+            isTablet -> """
+                Row(modifier = Modifier.fillMaxSize()) {
+                    if (tabs.size > 1) {
+                        NavigationRail {
+                            tabs.forEach { tab ->
+                                NavigationRailItem(
+                                    selected = selectedTabIndex == tab.index,
+                                    onClick = { selectedTabIndex = tab.index },
+                                    icon = { AwesomeIcon(icon = tab.icon, contentDescription = tab.title) },
+                                    label = { Text(tab.title) }
+                                )
+                            }
+                        }
+                    }
+                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
+                    currentTab.content(Modifier.fillMaxSize())
+                }
+            """.trimIndent()
+            isAdaptive -> """
+                BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+                    val isLargeScreen = maxWidth >= 600.dp
+                    if (isLargeScreen) {
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            if (tabs.size > 1) {
+                                NavigationRail {
+                                    tabs.forEach { tab ->
+                                        NavigationRailItem(
+                                            selected = selectedTabIndex == tab.index,
+                                            onClick = { selectedTabIndex = tab.index },
+                                            icon = { AwesomeIcon(icon = tab.icon, contentDescription = tab.title) },
+                                            label = { Text(tab.title) }
+                                        )
+                                    }
+                                }
+                            }
+                            val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
+                            currentTab.content(Modifier.fillMaxSize())
+                        }
+                    } else {
+                        Scaffold(
+                            modifier = Modifier.fillMaxSize(),
+                            bottomBar = {
+                                if (tabs.size > 1) {
+                                    NavigationBar {
+                                        tabs.forEach { tab ->
+                                            NavigationBarItem(
+                                                selected = selectedTabIndex == tab.index,
+                                                onClick = { selectedTabIndex = tab.index },
+                                                icon = { AwesomeIcon(icon = tab.icon, contentDescription = tab.title) },
+                                                label = { Text(tab.title) }
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        ) { innerPadding ->
+                            val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
+                            currentTab.content(Modifier.padding(innerPadding))
+                        }
+                    }
+                }
+            """.trimIndent()
+            else -> """
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
                     bottomBar = {
@@ -257,6 +317,52 @@ ${hiltAnnotation}class MainActivity : ComponentActivity() {
                     val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
                     currentTab.content(Modifier.padding(innerPadding))
                 }
+            """.trimIndent()
+        }
+
+        return """
+package ${model.packageName}
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+${if (!isTv) "import androidx.activity.enableEdgeToEdge" else ""}
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import ${model.packageName}.core.designsystem.theme.AwesomeTheme
+import ${model.packageName}.core.designsystem.icon.AwesomeIcon
+import ${model.packageName}.core.designsystem.icon.AwesomeIcons
+import ${model.packageName}.core.designsystem.icon.AwesomeIconSource
+$imports
+${if (model.diFramework == DiFramework.HILT) "import dagger.hilt.android.AndroidEntryPoint" else ""}
+
+private data class FeatureTab(
+    val index: Int,
+    val title: String,
+    val icon: AwesomeIconSource,
+    val content: @Composable (Modifier) -> Unit
+)
+
+${hiltAnnotation}class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        $edgeToEdgeCall
+        setContent {
+            AwesomeTheme {
+                val tabs = remember {
+                    listOf(
+                        $itemsData
+                    )
+                }
+                var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+                $uiLayoutCode
             }
         }
     }
@@ -490,7 +596,10 @@ val LocalSpacing = staticCompositionLocalOf { Spacing() }
 val LocalDimensions = staticCompositionLocalOf { Dimensions() }
 """.trimIndent()
 
-    fun generateDesignSystemRadius(model: WizardModel): String = """
+    fun generateDesignSystemRadius(model: WizardModel): String {
+        val s = model.cornerStyle
+        val xs = maxOf(2, s.smallDp / 2)
+        return """
 package ${model.packageName}.core.designsystem.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -501,29 +610,30 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Standard Corner Radius Tokens for consistent shape geometry across the project.
+ * Standard Corner Radius Tokens (${s.displayName}).
  */
 @Immutable
 data class CornerRadius(
     val none: Dp = 0.dp,
-    val extraSmall: Dp = 4.dp,
-    val small: Dp = 8.dp,
-    val medium: Dp = 12.dp,
-    val large: Dp = 16.dp,
-    val extraLarge: Dp = 28.dp,
+    val extraSmall: Dp = ${xs}.dp,
+    val small: Dp = ${s.smallDp}.dp,
+    val medium: Dp = ${s.mediumDp}.dp,
+    val large: Dp = ${s.largeDp}.dp,
+    val extraLarge: Dp = ${s.extraLargeDp}.dp,
     val full: Dp = 9999.dp
 )
 
 val LocalRadius = staticCompositionLocalOf { CornerRadius() }
 
 val AwesomeShapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small = RoundedCornerShape(8.dp),
-    medium = RoundedCornerShape(12.dp),
-    large = RoundedCornerShape(16.dp),
-    extraLarge = RoundedCornerShape(28.dp)
+    extraSmall = RoundedCornerShape(${xs}.dp),
+    small = RoundedCornerShape(${s.smallDp}.dp),
+    medium = RoundedCornerShape(${s.mediumDp}.dp),
+    large = RoundedCornerShape(${s.largeDp}.dp),
+    extraLarge = RoundedCornerShape(${s.extraLargeDp}.dp)
 )
 """.trimIndent()
+    }
 
     fun generateDesignSystemType(model: WizardModel): String = """
 package ${model.packageName}.core.designsystem.theme
@@ -649,7 +759,9 @@ val AwesomeTypography = Typography(
 )
 """.trimIndent()
 
-    fun generateDesignSystemColor(model: WizardModel): String = """
+    fun generateDesignSystemColor(model: WizardModel): String {
+        val cp = model.colorPreset
+        return """
 package ${model.packageName}.core.designsystem.theme
 
 import androidx.compose.material3.darkColorScheme
@@ -658,16 +770,16 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 
-// Core Brand Palette
-val PrimaryLight = Color(0xFF6750A4)
-val OnPrimaryLight = Color(0xFFFFFFFF)
-val PrimaryContainerLight = Color(0xFFEADDFF)
-val OnPrimaryContainerLight = Color(0xFF21005D)
+// Core Brand Palette (${cp.displayName})
+val PrimaryLight = Color(${cp.primaryLightHex})
+val OnPrimaryLight = Color(${cp.onPrimaryLightHex})
+val PrimaryContainerLight = Color(${cp.primaryContainerLightHex})
+val OnPrimaryContainerLight = Color(${cp.onPrimaryContainerLightHex})
 
-val SecondaryLight = Color(0xFF625B71)
+val SecondaryLight = Color(${cp.secondaryLightHex})
 val OnSecondaryLight = Color(0xFFFFFFFF)
-val SecondaryContainerLight = Color(0xFFE8DEF8)
-val OnSecondaryContainerLight = Color(0xFF1D192B)
+val SecondaryContainerLight = Color(${cp.primaryContainerLightHex})
+val OnSecondaryContainerLight = Color(${cp.onPrimaryContainerLightHex})
 
 val TertiaryLight = Color(0xFF7D5260)
 val OnTertiaryLight = Color(0xFFFFFFFF)
@@ -682,15 +794,15 @@ val SurfaceVariantLight = Color(0xFFE7E0EC)
 val OnSurfaceVariantLight = Color(0xFF49454F)
 val OutlineLight = Color(0xFF79747E)
 
-val PrimaryDark = Color(0xFFD0BCFF)
-val OnPrimaryDark = Color(0xFF381E72)
-val PrimaryContainerDark = Color(0xFF4F378B)
-val OnPrimaryContainerDark = Color(0xFFEADDFF)
+val PrimaryDark = Color(${cp.primaryDarkHex})
+val OnPrimaryDark = Color(${cp.onPrimaryDarkHex})
+val PrimaryContainerDark = Color(${cp.primaryContainerDarkHex})
+val OnPrimaryContainerDark = Color(${cp.onPrimaryContainerDarkHex})
 
-val SecondaryDark = Color(0xFFCCC2DC)
+val SecondaryDark = Color(${cp.secondaryDarkHex})
 val OnSecondaryDark = Color(0xFF332D41)
-val SecondaryContainerDark = Color(0xFF4A4458)
-val OnSecondaryContainerDark = Color(0xFFE8DEF8)
+val SecondaryContainerDark = Color(${cp.primaryContainerDarkHex})
+val OnSecondaryContainerDark = Color(${cp.onPrimaryContainerDarkHex})
 
 val TertiaryDark = Color(0xFFEFB8C8)
 val OnTertiaryDark = Color(0xFF492532)
@@ -800,6 +912,7 @@ val DarkColorScheme = darkColorScheme(
     outline = OutlineDark
 )
 """.trimIndent()
+    }
 
     fun generateDesignSystemTheme(model: WizardModel): String = """
 package ${model.packageName}.core.designsystem.theme
@@ -815,7 +928,7 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun AwesomeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = ${model.colorPreset == ColorPreset.DYNAMIC},
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
