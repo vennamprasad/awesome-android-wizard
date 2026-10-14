@@ -232,4 +232,46 @@ class ProjectGeneratorTest {
         assertTrue(radiusText.contains("small: Dp = 2.dp"))
         assertTrue(radiusText.contains("medium: Dp = 4.dp"))
     }
+
+    @Test
+    fun testAgp9KotlinBuiltinAndCompileSdkInCoreModules() {
+        val projectDir = tempFolder.newFolder("Agp9App")
+        val model = WizardModel(
+            projectName = "Agp9App",
+            packageName = "com.example.agp9",
+            projectLocation = projectDir.absolutePath,
+            useConventionPlugins = false,
+            compileSdk = 37,
+            minSdk = 24,
+            selectedCoreModules = mutableSetOf(
+                "core:data", "core:network", "core:database",
+                "core:ui", "core:designsystem", "core:testing"
+            ),
+            featureModules = mutableSetOf("home")
+        )
+
+        val resultDir = ProjectGenerator.generate(model)
+
+        val appBuild = File(resultDir, "app/build.gradle.kts").readText()
+        val coreDataBuild = File(resultDir, "core/data/build.gradle.kts").readText()
+        val coreNetworkBuild = File(resultDir, "core/network/build.gradle.kts").readText()
+        val coreDbBuild = File(resultDir, "core/database/build.gradle.kts").readText()
+        val coreUiBuild = File(resultDir, "core/ui/build.gradle.kts").readText()
+        val coreDsBuild = File(resultDir, "core/designsystem/build.gradle.kts").readText()
+        val coreTestingBuild = File(resultDir, "core/testing/build.gradle.kts").readText()
+        val featureBuild = File(resultDir, "feature/home/build.gradle.kts").readText()
+        val rootBuild = File(resultDir, "build.gradle.kts").readText()
+
+        // 1. Verify AGP 9 built-in Kotlin: alias(libs.plugins.kotlin.android) is NEVER declared
+        val modules = listOf(rootBuild, appBuild, coreDataBuild, coreNetworkBuild, coreDbBuild, coreUiBuild, coreDsBuild, coreTestingBuild, featureBuild)
+        for (moduleContent in modules) {
+            org.junit.Assert.assertFalse(moduleContent.contains("alias(libs.plugins.kotlin.android)"))
+        }
+
+        // 2. Verify compileSdk and minSdk are configured in :core:data and :core:network
+        assertTrue(coreDataBuild.contains("compileSdk = 37"))
+        assertTrue(coreDataBuild.contains("minSdk = 24"))
+        assertTrue(coreNetworkBuild.contains("compileSdk = 37"))
+        assertTrue(coreNetworkBuild.contains("minSdk = 24"))
+    }
 }

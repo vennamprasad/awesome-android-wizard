@@ -32,7 +32,6 @@ android {
             """
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 ${if (model.diFramework == DiFramework.HILT) "    alias(libs.plugins.hilt)\n    alias(libs.plugins.ksp)" else ""}
@@ -401,7 +400,6 @@ dependencies {
             """
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -517,7 +515,6 @@ dependencies {
             """
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -1228,12 +1225,13 @@ data class Item(
         }
         return """
 plugins {
-    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.android)"}
+    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)"}
     alias(libs.plugins.kotlin.serialization)
 }
 
 android {
     namespace = "${model.packageName}.core.network"
+    ${if (!model.useConventionPlugins) "compileSdk = ${model.compileSdk}\n    defaultConfig {\n        minSdk = ${model.minSdk}\n    }" else ""}
 }
 
 dependencies {
@@ -1292,11 +1290,12 @@ class FakeAwesomeNetworkDataSource : AwesomeNetworkDataSource {
     fun generateCoreDataBuildGradle(model: WizardModel): String {
         return """
 plugins {
-    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.android)"}
+    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)"}
 }
 
 android {
     namespace = "${model.packageName}.core.data"
+    ${if (!model.useConventionPlugins) "compileSdk = ${model.compileSdk}\n    defaultConfig {\n        minSdk = ${model.minSdk}\n    }" else ""}
 }
 
 dependencies {
@@ -1348,7 +1347,7 @@ internal class DefaultItemRepository(
         val sanitized = WizardModel.sanitizeFeatureName(featureName)
         return """
 plugins {
-    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")\n    id(\"awesome.android.library.compose\")" else "alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.android)\n    alias(libs.plugins.kotlin.compose)"}
+    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")\n    id(\"awesome.android.library.compose\")" else "alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.compose)"}
 ${if (model.diFramework == DiFramework.HILT) "    alias(libs.plugins.hilt)\n    alias(libs.plugins.ksp)" else ""}
 }
 
@@ -1497,7 +1496,7 @@ class ${pascal}ViewModel(
     fun generateCoreDatabaseBuildGradle(model: WizardModel): String {
         return """
 plugins {
-    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.android)"}
+    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)"}
     alias(libs.plugins.ksp)
 }
 
@@ -1594,7 +1593,7 @@ abstract class AwesomeDatabase : RoomDatabase() {
     fun generateCoreTestingBuildGradle(model: WizardModel): String {
         return """
 plugins {
-    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.android)"}
+    ${if (model.useConventionPlugins) "id(\"awesome.android.library\")" else "alias(libs.plugins.android.library)"}
 }
 
 android {

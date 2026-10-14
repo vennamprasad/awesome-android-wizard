@@ -45,14 +45,22 @@ rootProject.name = "${model.projectName}"
     }
 
     fun generateRootBuildGradle(model: WizardModel): String {
+        val hiltPlugins = if (model.diFramework == prasad.vennam.awesomeandroidwizard.model.DiFramework.HILT) {
+            "    alias(libs.plugins.hilt) apply false\n    alias(libs.plugins.ksp) apply false\n"
+        } else if (model.selectedCoreModules.any { it.contains("database") }) {
+            "    alias(libs.plugins.ksp) apply false\n"
+        } else {
+            ""
+        }
         return """
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
-}
+$hiltPlugins}
 
 // Git hooks installer task
 tasks.register("installGitHooks", Copy::class) {

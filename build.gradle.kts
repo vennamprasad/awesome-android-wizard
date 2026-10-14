@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.0.6"
+version = "1.0.7"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.6"
+        version = "1.0.7"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,6 +55,12 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.0.7 - AGP 9.0+ Built-in Kotlin Support & Submodule SDK Alignment</h3>
+            <ul>
+                <li>Migrated all generated Android application and library module templates to AGP 9 built-in Kotlin support, removing legacy <code>alias(libs.plugins.kotlin.android)</code> collisions.</li>
+                <li>Added explicit <code>compileSdk</code> and <code>minSdk</code> configuration to <code>:core:data</code> and <code>:core:network</code> module templates.</li>
+                <li>Registered <code>kotlin.jvm</code>, <code>hilt</code>, and <code>ksp</code> plugins in root <code>build.gradle.kts</code> for clean subproject resolution.</li>
+            </ul>
             <h3>1.0.6 - Device Form Factor (Mobile/Tablet/TV/Adaptive) & Theme Customization</h3>
             <ul>
                 <li>Added interactive 'Device & Theme Setup' wizard step.</li>
