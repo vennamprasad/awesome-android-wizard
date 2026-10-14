@@ -17,6 +17,15 @@
     ]]></description>
 
     <change-notes><![CDATA[
+      <h3>1.0.8 - Day-2 Component Scaffolders, Awesome Architecture Tool Window & Multiplatform Companion Modules</h3>
+      <ul>
+        <li><b>Awesome Architecture Tool Window:</b> Interactive side panel with module dependency graph, Clean Architecture boundary auditor, circular dependency detection, and Version Catalog inspector.</li>
+        <li><b>Day-2 MVI Feature Slice Scaffolder:</b> One-click scaffolding of MVI Contract (State, Intent, Effect), ViewModel (Hilt or Koin), Compose Screen, Navigation 2.8+ route, and Turbine unit test.</li>
+        <li><b>Day-2 Repository Slice Scaffolder:</b> Instant generation of Domain Model, Network DTO + Mapper, Repository interface, Default implementation, and Test Fake.</li>
+        <li><b>Production Performance & Baseline Profiles:</b> Automated <code>:benchmark</code> module generator with BaselineProfileGenerator and StartupBenchmark rules.</li>
+        <li><b>Wear OS Companion Scaffolder:</b> Instant creation of <code>:wear</code> companion app with Wear Compose M3, TileService, and ambient mode.</li>
+        <li><b>Android Auto & Automotive Scaffolder:</b> Automated <code>:automotive</code> module generation with AndroidX Car App Library, CarAppService, Session, and Screen templates.</li>
+      </ul>
       <h3>1.0.7 - AGP 9.0+ Built-in Kotlin Support & Submodule SDK Alignment</h3>
       <ul>
         <li>Migrated all generated Android application and library module templates to AGP 9 built-in Kotlin support, removing legacy <code>alias(libs.plugins.kotlin.android)</code> collisions.</li>
@@ -74,6 +83,14 @@
 
     <depends>com.intellij.modules.platform</depends>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Awesome Architecture"
+                    anchor="right"
+                    secondary="false"
+                    factoryClass="prasad.vennam.awesomeandroidwizard.ui.toolwindow.AwesomeToolWindowFactory"
+                    icon="AllIcons.Nodes.ModuleGroup"/>
+    </extensions>
+
     <actions>
         <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeProjectAction"
                 class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeProjectAction"
@@ -92,7 +109,6 @@
                 description="Scaffold a new decoupled feature module in the current Android project"
                 icon="AllIcons.Nodes.Module">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeProjectAction"/>
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift F"/>
         </action>
 
@@ -102,8 +118,52 @@
                 description="Scaffold a new decoupled core submodule (JVM, Android, or Compose) in the current Android project"
                 icon="AllIcons.Nodes.Plugin">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
-            <add-to-group group-id="ProjectViewPopupMenu" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift C"/>
+        </action>
+
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeMviSliceAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeMviSliceAction"
+                text="Awesome MVI Feature Slice..."
+                description="Scaffold a new MVI feature slice (Contract, ViewModel, Compose Screen, Navigation, and Unit Test)"
+                icon="AllIcons.Actions.Compile">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift M"/>
+        </action>
+
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeRepositorySliceAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeRepositorySliceAction"
+                text="Awesome Repository Slice..."
+                description="Scaffold a Clean Architecture repository slice (Model, Network DTO, Mapper, Repository, and Test Fake)"
+                icon="AllIcons.Nodes.DataTables">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeMviSliceAction"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift R"/>
+        </action>
+
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeBenchmarkModuleAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeBenchmarkModuleAction"
+                text="Awesome Benchmark &amp; Baseline Profiles..."
+                description="Scaffold a Macrobenchmark and Baseline Profiles module for the Android project"
+                icon="AllIcons.Actions.Profile">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeRepositorySliceAction"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift B"/>
+        </action>
+
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeWearModuleAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeWearModuleAction"
+                text="Awesome Wear OS Companion Module..."
+                description="Scaffold a Wear OS Compose companion module with TileService and ambient support"
+                icon="AllIcons.Nodes.PpWeb">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeBenchmarkModuleAction"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift W"/>
+        </action>
+
+        <action id="prasad.vennam.awesomeandroidwizard.action.NewAwesomeAutomotiveModuleAction"
+                class="prasad.vennam.awesomeandroidwizard.action.NewAwesomeAutomotiveModuleAction"
+                text="Awesome Android Auto &amp; Automotive Module..."
+                description="Scaffold an Android Auto and Android Automotive OS (AAOS) CarAppService module"
+                icon="AllIcons.Nodes.Services">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="prasad.vennam.awesomeandroidwizard.action.NewAwesomeWearModuleAction"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="control alt shift U"/>
         </action>
 
         <action id="prasad.vennam.awesomeandroidwizard.action.ProjectDoctorAction"
@@ -114,5 +174,25 @@
             <add-to-group group-id="ToolsMenu" anchor="last"/>
             <keyboard-shortcut keymap="$default" first-keystroke="control alt shift D"/>
         </action>
+
+        <!-- Elegant Context Menu Group for Project View -->
+        <group id="prasad.vennam.awesomeandroidwizard.AwesomeContextMenuGroup"
+               text="Awesome Android"
+               description="Awesome Android architecture scaffolding tools"
+               icon="AllIcons.Nodes.Plugin"
+               popup="true">
+            <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.NewAwesomeMviSliceAction"/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.NewAwesomeRepositorySliceAction"/>
+            <separator/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.NewAwesomeFeatureModuleAction"/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.NewAwesomeCoreModuleAction"/>
+            <separator/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.NewAwesomeBenchmarkModuleAction"/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.NewAwesomeWearModuleAction"/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.NewAwesomeAutomotiveModuleAction"/>
+            <separator/>
+            <reference ref="prasad.vennam.awesomeandroidwizard.action.ProjectDoctorAction"/>
+        </group>
     </actions>
 </idea-plugin>

@@ -177,8 +177,10 @@ object ProjectGenerator {
 
             val featureSrc = File(featureDir, "src/main/kotlin/$pkgPath/feature/$sanitized")
             featureSrc.mkdirs()
+            createFile(featureSrc, "${pascal}Contract.kt", ModulesTemplate.generateFeatureContract(model, sanitized))
             createFile(featureSrc, "${pascal}Screen.kt", ModulesTemplate.generateFeatureScreen(model, sanitized))
             createFile(featureSrc, "${pascal}ViewModel.kt", ModulesTemplate.generateFeatureViewModel(model, sanitized))
+            createFile(featureSrc, "${pascal}Navigation.kt", ModulesTemplate.generateFeatureNavigation(model, sanitized))
         }
 
         // 7. DevOps & CI/CD Tooling

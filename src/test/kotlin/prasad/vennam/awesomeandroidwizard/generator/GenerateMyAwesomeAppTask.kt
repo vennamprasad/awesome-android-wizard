@@ -9,6 +9,7 @@ import java.io.File
 
 class GenerateMyAwesomeAppTask {
 
+    @org.junit.Ignore("Manual generator task for local dev/testing")
     @Test
     fun generateMyAwesomeApp() {
         val model = WizardModel(

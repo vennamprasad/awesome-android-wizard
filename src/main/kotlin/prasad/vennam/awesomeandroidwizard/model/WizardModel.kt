@@ -224,13 +224,15 @@ data class WizardModel(
         }
 
         fun toPascalCase(name: String): String {
-            val sanitized = sanitizeFeatureName(name)
-            if (sanitized.isEmpty()) return "Feature"
-            return sanitized.split("-", "_")
-                .filter { it.isNotEmpty() }
-                .joinToString("") { part ->
-                    part.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-                }
+            val clean = name.trim()
+                .removePrefix("feature:")
+                .removePrefix(":")
+                .replace("[^a-zA-Z0-9_-]".toRegex(), "")
+            if (clean.isEmpty()) return "Feature"
+            val words = clean.split("(?<=[a-z])(?=[A-Z])|[-_]".toRegex()).filter { it.isNotEmpty() }
+            return words.joinToString("") { part ->
+                part.lowercase().replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
+            }
         }
     }
 }

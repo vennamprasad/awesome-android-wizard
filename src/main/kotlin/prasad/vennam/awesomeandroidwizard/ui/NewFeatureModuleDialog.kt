@@ -88,8 +88,7 @@ class NewFeatureModuleDialog(private val project: Project) : DialogWrapper(proje
 
         val result = FeatureModuleGenerator.scaffoldFeature(
             projectRootDir = rootDir,
-            rawFeatureName = rawName,
-            diFramework = DiFramework.KOIN
+            rawFeatureName = rawName
         )
 
         if (result.success) {

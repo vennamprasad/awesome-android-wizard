@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.0.7"
+version = "1.0.8"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.7"
+        version = "1.0.8"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,6 +55,15 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.0.8 - Day-2 Component Scaffolders, Awesome Architecture Tool Window & Multiplatform Companion Modules</h3>
+            <ul>
+                <li><b>Awesome Architecture Tool Window:</b> Interactive side panel with module dependency graph, Clean Architecture boundary auditor, circular dependency detection, and Version Catalog inspector.</li>
+                <li><b>Day-2 MVI Feature Slice Scaffolder:</b> One-click scaffolding of MVI Contract (State, Intent, Effect), ViewModel (Hilt or Koin), Compose Screen, Navigation 2.8+ route, and Turbine unit test.</li>
+                <li><b>Day-2 Repository Slice Scaffolder:</b> Instant generation of Domain Model, Network DTO + Mapper, Repository interface, Default implementation, and Test Fake.</li>
+                <li><b>Production Performance & Baseline Profiles:</b> Automated <code>:benchmark</code> module generator with BaselineProfileGenerator and StartupBenchmark rules.</li>
+                <li><b>Wear OS Companion Scaffolder:</b> Instant creation of <code>:wear</code> companion app with Wear Compose M3, TileService, and ambient mode.</li>
+                <li><b>Android Auto & Automotive Scaffolder:</b> Automated <code>:automotive</code> module generation with AndroidX Car App Library, CarAppService, Session, and Screen templates.</li>
+            </ul>
             <h3>1.0.7 - AGP 9.0+ Built-in Kotlin Support & Submodule SDK Alignment</h3>
             <ul>
                 <li>Migrated all generated Android application and library module templates to AGP 9 built-in Kotlin support, removing legacy <code>alias(libs.plugins.kotlin.android)</code> collisions.</li>

@@ -17,7 +17,7 @@ object FeatureModuleGenerator {
     fun scaffoldFeature(
         projectRootDir: File,
         rawFeatureName: String,
-        diFramework: DiFramework = DiFramework.KOIN
+        diFramework: DiFramework? = null
     ): FeatureGenerationResult {
         val sanitized = WizardModel.sanitizeFeatureName(rawFeatureName)
         if (sanitized.isEmpty()) {
@@ -25,6 +25,7 @@ object FeatureModuleGenerator {
         }
 
         val basePackage = detectBasePackage(projectRootDir) ?: "com.example.app"
+        val effectiveDi = diFramework ?: detectDiFramework(projectRootDir)
         val pascal = WizardModel.toPascalCase(sanitized)
         val pkgPath = basePackage.replace(".", "/")
 
@@ -33,7 +34,7 @@ object FeatureModuleGenerator {
             packageName = basePackage,
             projectLocation = projectRootDir.absolutePath,
             architecture = ArchitectureType.MODULAR_CLEAN_MVI,
-            diFramework = diFramework,
+            diFramework = effectiveDi,
             useConventionPlugins = File(projectRootDir, "build-logic").exists()
         )
 
@@ -48,11 +49,13 @@ object FeatureModuleGenerator {
         val buildFile = File(featureDir, "build.gradle.kts")
         buildFile.writeText(ModulesTemplate.generateFeatureBuildGradle(dummyModel, sanitized))
 
-        // 3. Generate Screen and ViewModel
+        // 3. Generate Contract, Screen, ViewModel, and Navigation
         val srcDir = File(featureDir, "src/main/kotlin/$pkgPath/feature/$sanitized")
         srcDir.mkdirs()
+        File(srcDir, "${pascal}Contract.kt").writeText(ModulesTemplate.generateFeatureContract(dummyModel, sanitized))
         File(srcDir, "${pascal}Screen.kt").writeText(ModulesTemplate.generateFeatureScreen(dummyModel, sanitized))
         File(srcDir, "${pascal}ViewModel.kt").writeText(ModulesTemplate.generateFeatureViewModel(dummyModel, sanitized))
+        File(srcDir, "${pascal}Navigation.kt").writeText(ModulesTemplate.generateFeatureNavigation(dummyModel, sanitized))
 
         // 4. Update settings.gradle.kts
         val settingsFile = File(projectRootDir, "settings.gradle.kts")
@@ -102,5 +105,21 @@ object FeatureModuleGenerator {
             }
         }
         return null
+    }
+
+    private fun detectDiFramework(rootDir: File): DiFramework {
+        val tomlFile = File(rootDir, "gradle/libs.versions.toml")
+        if (tomlFile.exists()) {
+            val tomlText = tomlFile.readText()
+            if (tomlText.contains("hilt")) return DiFramework.HILT
+            if (tomlText.contains("koin")) return DiFramework.KOIN
+        }
+        val appBuild = File(rootDir, "app/build.gradle.kts")
+        if (appBuild.exists()) {
+            val text = appBuild.readText()
+            if (text.contains("hilt")) return DiFramework.HILT
+            if (text.contains("koin")) return DiFramework.KOIN
+        }
+        return DiFramework.KOIN
     }
 }

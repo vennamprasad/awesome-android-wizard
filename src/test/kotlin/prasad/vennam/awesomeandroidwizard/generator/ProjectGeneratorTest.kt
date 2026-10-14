@@ -149,8 +149,12 @@ class ProjectGeneratorTest {
 
         assertTrue(result.success)
         assertTrue(File(projectDir, "feature/checkout/build.gradle.kts").exists())
+        assertTrue(File(projectDir, "feature/checkout/src/main/kotlin/com/example/existing/feature/checkout/CheckoutContract.kt").exists())
         assertTrue(File(projectDir, "feature/checkout/src/main/kotlin/com/example/existing/feature/checkout/CheckoutScreen.kt").exists())
-        assertTrue(File(projectDir, "feature/checkout/src/main/kotlin/com/example/existing/feature/checkout/CheckoutViewModel.kt").exists())
+        val checkoutVm = File(projectDir, "feature/checkout/src/main/kotlin/com/example/existing/feature/checkout/CheckoutViewModel.kt")
+        assertTrue(checkoutVm.exists())
+        org.junit.Assert.assertFalse(checkoutVm.readText().contains("sealed interface CheckoutUiState"))
+        assertTrue(File(projectDir, "feature/checkout/src/main/kotlin/com/example/existing/feature/checkout/CheckoutNavigation.kt").exists())
 
         // Verify settings.gradle.kts was updated
         val settingsText = File(projectDir, "settings.gradle.kts").readText()

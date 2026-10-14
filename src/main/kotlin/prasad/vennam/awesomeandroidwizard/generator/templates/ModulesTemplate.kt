@@ -1262,7 +1262,7 @@ package ${model.packageName}.core.network.model
 sealed interface NetworkResult<out T> {
     data class Success<T>(val data: T) : NetworkResult<T>
     data class Error(val message: String, val cause: Throwable? = null) : NetworkResult<Nothing>
-    object Loading : NetworkResult<Nothing>
+    data object Loading : NetworkResult<Nothing>
 }
 """.trimIndent()
 
@@ -1348,6 +1348,7 @@ internal class DefaultItemRepository(
         return """
 plugins {
     ${if (model.useConventionPlugins) "id(\"awesome.android.library\")\n    id(\"awesome.android.library.compose\")" else "alias(libs.plugins.android.library)\n    alias(libs.plugins.kotlin.compose)"}
+    alias(libs.plugins.kotlin.serialization)
 ${if (model.diFramework == DiFramework.HILT) "    alias(libs.plugins.hilt)\n    alias(libs.plugins.ksp)" else ""}
 }
 
@@ -1365,11 +1366,18 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.kotlinx.serialization.json)
 
 ${if (model.diFramework == DiFramework.KOIN) "    implementation(libs.koin.androidx.compose)" else "    implementation(libs.hilt.android)\n    ksp(libs.hilt.compiler)\n    implementation(libs.androidx.hilt.navigation.compose)"}
+
+    testImplementation(project(":core:testing"))
+    testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.turbine)
 }
 """.trimIndent()
     }
@@ -1398,6 +1406,7 @@ import ${model.packageName}.core.ui.components.AwesomeLoadingWheel
 @Composable
 fun ${pascal}Screen(
     modifier: Modifier = Modifier,
+    onNavigateBack: () -> Unit = {},
     viewModel: ${pascal}ViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -1432,8 +1441,62 @@ fun ${pascal}Screen(
                     }
                 }
             }
+            is ${pascal}UiState.Error -> {
+                Text(
+                    text = state.message,
+                    color = AwesomeTheme.colorScheme.error,
+                    style = AwesomeTheme.typography.bodyLarge
+                )
+            }
         }
     }
+}
+""".trimIndent()
+    }
+
+    fun generateFeatureContract(model: WizardModel, featureName: String): String {
+        val sanitized = WizardModel.sanitizeFeatureName(featureName)
+        val pascal = WizardModel.toPascalCase(sanitized)
+
+        return """
+package ${model.packageName}.feature.$sanitized
+
+import androidx.compose.runtime.Immutable
+import ${model.packageName}.core.model.Item
+
+/**
+ * Immutable UI State for $pascal screen.
+ */
+@Immutable
+sealed interface ${pascal}UiState {
+    data object Loading : ${pascal}UiState
+
+    data class Success(
+        val items: List<Item> = emptyList(),
+        val isRefreshing: Boolean = false
+    ) : ${pascal}UiState
+
+    data class Error(
+        val message: String
+    ) : ${pascal}UiState
+}
+
+/**
+ * User intents / actions dispatched to ${pascal}ViewModel.
+ */
+sealed interface ${pascal}UiIntent {
+    data object LoadData : ${pascal}UiIntent
+    data object Refresh : ${pascal}UiIntent
+    data class ItemClicked(val id: String) : ${pascal}UiIntent
+    data object Retry : ${pascal}UiIntent
+}
+
+/**
+ * Single-shot side effects (navigation, snackbars, dialogues) for $pascal.
+ */
+sealed interface ${pascal}UiEffect {
+    data class ShowSnackbar(val message: String) : ${pascal}UiEffect
+    data class NavigateTo(val route: String) : ${pascal}UiEffect
 }
 """.trimIndent()
     }
@@ -1449,15 +1512,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ${model.packageName}.core.data.repository.ItemRepository
 import ${model.packageName}.core.model.Item
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-
-sealed interface ${pascal}UiState {
-    object Loading : ${pascal}UiState
-    data class Success(val items: List<Item>) : ${pascal}UiState
-}
 
 class ${pascal}ViewModel(
     private val repository: ItemRepository = ItemRepository.create()
@@ -1465,19 +1525,51 @@ class ${pascal}ViewModel(
     private val _uiState = MutableStateFlow<${pascal}UiState>(${pascal}UiState.Loading)
     val uiState: StateFlow<${pascal}UiState> = _uiState.asStateFlow()
 
+    private val _uiEffect = Channel<${pascal}UiEffect>(Channel.BUFFERED)
+    val uiEffect = _uiEffect.receiveAsFlow()
+
     init {
         loadData()
     }
 
+    fun onIntent(intent: ${pascal}UiIntent) {
+        when (intent) {
+            is ${pascal}UiIntent.LoadData -> loadData()
+            is ${pascal}UiIntent.Refresh -> refreshData()
+            is ${pascal}UiIntent.ItemClicked -> {
+                viewModelScope.launch {
+                    _uiEffect.send(${pascal}UiEffect.ShowSnackbar("Selected: ${'$'}{intent.id}"))
+                }
+            }
+            is ${pascal}UiIntent.Retry -> loadData()
+        }
+    }
+
     private fun loadData() {
         viewModelScope.launch {
-            repository.getItems().collect { networkItems ->
-                val featureItem = Item(
-                    id = "feat-$sanitized",
-                    title = "$pascal Active",
-                    description = "Decoupled feature module :feature:$sanitized wired with :core:data repository"
-                )
-                _uiState.value = ${pascal}UiState.Success(listOf(featureItem) + networkItems)
+            _uiState.value = ${pascal}UiState.Loading
+            try {
+                repository.getItems().collect { networkItems ->
+                    val featureItem = Item(
+                        id = "feat-$sanitized",
+                        title = "$pascal Active",
+                        description = "Decoupled feature module :feature:$sanitized wired with :core:data repository"
+                    )
+                    _uiState.value = ${pascal}UiState.Success(listOf(featureItem) + networkItems)
+                }
+            } catch (e: Exception) {
+                _uiState.value = ${pascal}UiState.Error(e.message ?: "An unexpected error occurred")
+            }
+        }
+    }
+
+    private fun refreshData() {
+        viewModelScope.launch {
+            val current = _uiState.value
+            if (current is ${pascal}UiState.Success) {
+                _uiState.value = current.copy(isRefreshing = true)
+                _uiState.value = current.copy(isRefreshing = false)
+                _uiEffect.send(${pascal}UiEffect.ShowSnackbar("Data updated successfully"))
             }
         }
     }
@@ -1485,10 +1577,42 @@ class ${pascal}ViewModel(
 """.trimIndent()
     }
 
+    fun generateFeatureNavigation(model: WizardModel, featureName: String): String {
+        val sanitized = WizardModel.sanitizeFeatureName(featureName)
+        val pascal = WizardModel.toPascalCase(sanitized)
+
+        return """
+package ${model.packageName}.feature.$sanitized
+
+import androidx.navigation.NavController
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavOptions
+import androidx.navigation.compose.composable
+import kotlinx.serialization.Serializable
+
+@Serializable
+data object ${pascal}Route
+
+fun NavController.navigateTo$pascal(navOptions: NavOptions? = null) {
+    navigate(route = ${pascal}Route, navOptions = navOptions)
+}
+
+fun NavGraphBuilder.${sanitized}Screen(
+    onNavigateBack: () -> Unit = {}
+) {
+    composable<${pascal}Route> {
+        ${pascal}Screen(onNavigateBack = onNavigateBack)
+    }
+}
+""".trimIndent()
+    }
+
     // Backward-compatibility shortcuts
     fun generateFeatureHomeBuildGradle(model: WizardModel) = generateFeatureBuildGradle(model, "home")
+    fun generateFeatureHomeContract(model: WizardModel) = generateFeatureContract(model, "home")
     fun generateHomeScreen(model: WizardModel) = generateFeatureScreen(model, "home")
     fun generateHomeViewModel(model: WizardModel) = generateFeatureViewModel(model, "home")
+    fun generateHomeContract(model: WizardModel) = generateFeatureContract(model, "home")
 
     // -------------------------------------------------------------
     // :core:database (Room SQLite Persistence)

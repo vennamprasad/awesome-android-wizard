@@ -1,0 +1,112 @@
+package prasad.vennam.awesomeandroidwizard.ui
+
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.ui.components.JBLabel
+import com.intellij.ui.components.JBTextField
+import prasad.vennam.awesomeandroidwizard.generator.AutomotiveModuleGenerator
+import java.awt.BorderLayout
+import java.awt.Dimension
+import java.awt.GridBagConstraints
+import java.awt.GridBagLayout
+import java.awt.Insets
+import java.io.File
+import javax.swing.BorderFactory
+import javax.swing.JComponent
+import javax.swing.JPanel
+
+class NewAutomotiveModuleDialog(private val project: Project) : DialogWrapper(project, true) {
+
+    private val packageField = JBTextField(24)
+
+    init {
+        title = "New Awesome Android Auto & Automotive Module"
+        detectPackage()
+        init()
+    }
+
+    private fun detectPackage() {
+        val basePath = project.basePath ?: return
+        val appBuild = File(basePath, "app/build.gradle.kts")
+        if (appBuild.exists()) {
+            val content = appBuild.readText()
+            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
+            val match = namespaceRegex.find(content)
+            if (match != null) {
+                packageField.text = match.groupValues[1]
+                return
+            }
+        }
+        packageField.text = "com.example.app"
+    }
+
+    override fun createCenterPanel(): JComponent {
+        val root = JPanel(BorderLayout()).apply {
+            preferredSize = Dimension(520, 240)
+            border = BorderFactory.createEmptyBorder(15, 20, 15, 20)
+        }
+
+        val formPanel = JPanel(GridBagLayout())
+        val gbc = GridBagConstraints().apply {
+            anchor = GridBagConstraints.WEST
+            fill = GridBagConstraints.HORIZONTAL
+            insets = Insets(6, 6, 6, 6)
+            gridx = 0; gridy = 0; gridwidth = 2
+        }
+
+        formPanel.add(
+            JBLabel("<html><b>Scaffold Android Auto / Automotive Module (:automotive)</b><br>" +
+                    "<span color='gray'>Generates CarAppService, Session, Screen template, and wires into settings.gradle.kts.</span></html>"),
+            gbc
+        )
+
+        gbc.gridy++
+        gbc.gridwidth = 1
+        formPanel.add(JBLabel("Base Application Package:"), gbc)
+
+        gbc.gridx = 1
+        gbc.weightx = 1.0
+        formPanel.add(packageField, gbc)
+
+        gbc.gridx = 0
+        gbc.gridy++
+        gbc.gridwidth = 2
+        gbc.weightx = 0.0
+        formPanel.add(
+            JBLabel("<html><small color='gray'>" +
+                    "• Target SDK: 37, Min SDK: 26 (Android Auto & AAOS)<br>" +
+                    "• Official AndroidX Car App Library integration<br>" +
+                    "• Ready-to-run MainCarAppService, MainCarSession, and MainCarScreen" +
+                    "</small></html>"),
+            gbc
+        )
+
+        root.add(formPanel, BorderLayout.CENTER)
+        return root
+    }
+
+    override fun doOKAction() {
+        val basePath = project.basePath ?: return
+        val rootDir = File(basePath)
+        val customPkg = packageField.text.trim()
+
+        val result = AutomotiveModuleGenerator.scaffoldAutomotiveModule(rootDir, customPkg)
+
+        if (result.success) {
+            LocalFileSystem.getInstance().refreshAndFindFileByIoFile(rootDir)?.let {
+                VfsUtil.markDirtyAndRefresh(true, true, true, it)
+            }
+            Messages.showInfoMessage(
+                project,
+                "${result.message}\n\nSync Gradle to start testing on Android Auto or Automotive OS!",
+                "Automotive Module Created"
+            )
+            super.doOKAction()
+        } else {
+            Messages.showErrorDialog(project, result.message, "Scaffolding Failed")
+        }
+    }
+}
