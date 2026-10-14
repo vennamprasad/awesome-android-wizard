@@ -144,7 +144,7 @@ The generated projects follow Google's official Android Architecture Guide and *
    ```bash
    gradle buildPlugin
    ```
-   *(Or locate the pre-built zip at `build/distributions/awesome-android-wizard-1.0.8.zip`)*
+   *(Or locate the pre-built zip at `build/distributions/awesome-android-wizard-1.0.9.zip`)*
 2. In Android Studio or IntelliJ IDEA, open:
    - **Settings** (Windows/Linux) or **Preferences** (macOS) ➔ **Plugins**.
 3. Click the gear icon (⚙️) ➔ **Install Plugin from Disk...**

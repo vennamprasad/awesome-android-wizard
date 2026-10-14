@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.0.8"
+version = "1.0.9"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.0.8"
+        version = "1.0.9"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,7 +55,7 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
-            <h3>1.0.8 - Component Scaffolders, Awesome Architecture Tool Window & Multiplatform Companion Modules</h3>
+            <h3>1.0.9 - Modular Component Scaffolders, Awesome Architecture Tool Window & Multiplatform Companion Modules</h3>
             <ul>
                 <li><b>Awesome Architecture Tool Window:</b> Interactive side panel with module dependency graph, Clean Architecture boundary auditor, circular dependency detection, and Version Catalog inspector.</li>
                 <li><b>MVI Feature Slice Scaffolder:</b> One-click scaffolding of MVI Contract (State, Intent, Effect), ViewModel (Hilt or Koin), Compose Screen, Navigation 2.8+ route, and Turbine unit test.</li>
