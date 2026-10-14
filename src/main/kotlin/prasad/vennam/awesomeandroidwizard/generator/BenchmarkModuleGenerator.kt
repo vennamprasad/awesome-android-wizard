@@ -32,11 +32,11 @@ plugins {
 
 android {
     namespace = "$basePackage.benchmark"
-    compileSdk = 37
+    compileSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
 
     defaultConfig {
         minSdk = 28
-        targetSdk = 37
+        targetSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

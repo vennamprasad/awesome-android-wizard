@@ -88,8 +88,8 @@ plugins {
 
 android {
     namespace = "$basePackage.core.$sanitized"
-    compileSdk = 37
-    defaultConfig { minSdk = 26 }
+    compileSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
+    defaultConfig { minSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.MIN_SDK} }
 }
 
 dependencies {
@@ -128,8 +128,8 @@ plugins {
 
 android {
     namespace = "$basePackage.core.$sanitized"
-    compileSdk = 37
-    defaultConfig { minSdk = 26 }
+    compileSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
+    defaultConfig { minSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.MIN_SDK} }
     buildFeatures { compose = true }
 }
 

@@ -37,8 +37,10 @@ rootProject.name = "${model.projectName}"
 
         sb.appendLine("include(\":app\")")
         for (module in model.getAllSelectedModules()) {
-            val gradlePath = ":" + module.replace("/", ":")
-            sb.appendLine("include(\"$gradlePath\")")
+            val gradlePath = ":" + module.replace("/", ":").removePrefix(":")
+            if (gradlePath != ":app") {
+                sb.appendLine("include(\"$gradlePath\")")
+            }
         }
 
         return sb.toString()
@@ -57,6 +59,8 @@ rootProject.name = "${model.projectName}"
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.androidx.baselineprofile) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
@@ -73,18 +77,25 @@ tasks.register("installGitHooks", Copy::class) {
 """.trimIndent()
     }
 
-    fun generatePreCommitHook(): String = """
+    fun generatePreCommitHook(model: WizardModel? = null): String {
+        val checkCommand = if (model?.generateDetekt == true) {
+            "./gradlew detekt lintDebug --daemon"
+        } else {
+            "./gradlew lintDebug --daemon"
+        }
+        return """
 #!/bin/sh
 # Awesome Android Project Pre-Commit Hook
 echo "🔍 Running pre-commit static analysis & code quality checks..."
 
-./gradlew lintDebug --daemon || {
+$checkCommand || {
     echo "❌ Pre-commit checks failed! Fix lint issues before committing."
     exit 1
 }
 
 echo "✅ Pre-commit verification passed."
 """.trimIndent()
+    }
 
 
     fun generateGradleProperties(): String = """
@@ -100,8 +111,9 @@ android.useAndroidX=true
 # Automatically convert third-party libraries to use AndroidX
 android.enableJetifier=false
 
-# Kotlin code style
+# Kotlin code style & KSP inter-module incremental processing
 kotlin.code.style=official
+ksp.incremental.intermodule=true
 # Enabled parallel sync for Gradle 9.4+
 org.gradle.tooling.parallel=true
 """.trimIndent()
@@ -109,7 +121,7 @@ org.gradle.tooling.parallel=true
     fun generateGradleWrapperProperties(): String = """
 distributionBase=GRADLE_USER_HOME
 distributionPath=wrapper/dists
-distributionUrl=https\://services.gradle.org/distributions/gradle-9.8.1-bin.zip
+distributionUrl=${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.gradleWrapperDistributionUrl()}
 networkTimeout=60000
 validateDistributionUrl=false
 zipStoreBase=GRADLE_USER_HOME

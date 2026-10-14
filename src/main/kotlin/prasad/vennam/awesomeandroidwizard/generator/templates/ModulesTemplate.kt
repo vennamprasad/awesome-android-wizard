@@ -186,11 +186,33 @@ class AwesomeApplication : Application()
     fun generateMainActivity(model: WizardModel): String {
         val hiltAnnotation = if (model.diFramework == DiFramework.HILT) "@AndroidEntryPoint\n" else ""
         val features = model.featureModules.map { WizardModel.sanitizeFeatureName(it) }
+        val hasFeatures = features.isNotEmpty()
+        val hasDesignSystem = model.selectedCoreModules.any { it.contains("designsystem") }
+
         val imports = StringBuilder()
-        features.forEach { feat ->
-            val pascal = WizardModel.toPascalCase(feat)
-            imports.appendLine("import ${model.packageName}.feature.$feat.${pascal}Screen")
+        if (hasFeatures) {
+            features.forEach { feat ->
+                val pascal = WizardModel.toPascalCase(feat)
+                imports.appendLine("import ${model.packageName}.feature.$feat.${pascal}Screen")
+            }
         }
+
+        val designSystemImports = if (hasDesignSystem) {
+            """
+import ${model.packageName}.core.designsystem.theme.AwesomeTheme
+import ${model.packageName}.core.designsystem.icon.AwesomeIcon
+import ${model.packageName}.core.designsystem.icon.AwesomeIcons
+import ${model.packageName}.core.designsystem.icon.AwesomeIconSource
+""".trimIndent()
+        } else ""
+
+        val themeWrapperStart = if (hasDesignSystem) "AwesomeTheme {" else "MaterialTheme {"
+        val themeWrapperEnd = "}"
+
+        val isTv = model.targetFormFactor == TargetFormFactor.TV
+        val isTablet = model.targetFormFactor == TargetFormFactor.TABLET_FOLDABLE
+        val isAdaptive = model.targetFormFactor == TargetFormFactor.UNIVERSAL_ADAPTIVE
+        val edgeToEdgeCall = if (!isTv) "enableEdgeToEdge()" else ""
 
         val itemsData = features.mapIndexed { index, feat ->
             val pascal = WizardModel.toPascalCase(feat)
@@ -205,13 +227,11 @@ class AwesomeApplication : Application()
             "FeatureTab($index, \"$pascal\", $iconRef) { modifier -> ${pascal}Screen(modifier = modifier) }"
         }.joinToString(",\n                        ")
 
-        val isTv = model.targetFormFactor == TargetFormFactor.TV
-        val isTablet = model.targetFormFactor == TargetFormFactor.TABLET_FOLDABLE
-        val isAdaptive = model.targetFormFactor == TargetFormFactor.UNIVERSAL_ADAPTIVE
-
-        val edgeToEdgeCall = if (!isTv) "enableEdgeToEdge()" else ""
-
-        val uiLayoutCode = when {
+        val uiLayoutCode = if (!hasFeatures || !hasDesignSystem) {
+            """
+                MainScreen()
+            """.trimIndent()
+        } else when {
             isTv -> """
                 Scaffold(
                     modifier = Modifier.fillMaxSize(),
@@ -229,8 +249,8 @@ class AwesomeApplication : Application()
                         }
                     }
                 ) { innerPadding ->
-                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
-                    currentTab.content(Modifier.padding(innerPadding))
+                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.firstOrNull()
+                    currentTab?.content?.invoke(Modifier.padding(innerPadding)) ?: MainScreen()
                 }
             """.trimIndent()
             isTablet -> """
@@ -247,8 +267,8 @@ class AwesomeApplication : Application()
                             }
                         }
                     }
-                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
-                    currentTab.content(Modifier.fillMaxSize())
+                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.firstOrNull()
+                    currentTab?.content?.invoke(Modifier.fillMaxSize()) ?: MainScreen()
                 }
             """.trimIndent()
             isAdaptive -> """
@@ -268,8 +288,8 @@ class AwesomeApplication : Application()
                                     }
                                 }
                             }
-                            val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
-                            currentTab.content(Modifier.fillMaxSize())
+                            val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.firstOrNull()
+                            currentTab?.content?.invoke(Modifier.fillMaxSize()) ?: MainScreen()
                         }
                     } else {
                         Scaffold(
@@ -289,8 +309,8 @@ class AwesomeApplication : Application()
                                 }
                             }
                         ) { innerPadding ->
-                            val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
-                            currentTab.content(Modifier.padding(innerPadding))
+                            val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.firstOrNull()
+                            currentTab?.content?.invoke(Modifier.padding(innerPadding)) ?: MainScreen()
                         }
                     }
                 }
@@ -313,11 +333,77 @@ class AwesomeApplication : Application()
                         }
                     }
                 ) { innerPadding ->
-                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.first()
-                    currentTab.content(Modifier.padding(innerPadding))
+                    val currentTab = tabs.getOrNull(selectedTabIndex) ?: tabs.firstOrNull()
+                    currentTab?.content?.invoke(Modifier.padding(innerPadding)) ?: MainScreen()
                 }
             """.trimIndent()
         }
+
+        val tabDeclaration = if (hasFeatures && hasDesignSystem) """
+private data class FeatureTab(
+    val index: Int,
+    val title: String,
+    val icon: AwesomeIconSource,
+    val content: @Composable (Modifier) -> Unit
+)
+""" else ""
+
+        val mainScreenComposable = """
+@Composable
+fun MainScreen(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        color = MaterialTheme.colorScheme.background
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            contentAlignment = androidx.compose.ui.Alignment.Center
+        ) {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "🚀 ${model.projectName}",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Scaffolded with Awesome Android Wizard",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Jetpack Compose • Material 3 • Kotlin",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+"""
+
+        val tabInitLogic = if (hasFeatures && hasDesignSystem) """
+                val tabs = remember {
+                    listOf(
+                        $itemsData
+                    )
+                }
+                var selectedTabIndex by remember { mutableIntStateOf(0) }
+""" else ""
 
         return """
 package ${model.packageName}
@@ -326,46 +412,26 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 ${if (!isTv) "import androidx.activity.enableEdgeToEdge" else ""}
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import ${model.packageName}.core.designsystem.theme.AwesomeTheme
-import ${model.packageName}.core.designsystem.icon.AwesomeIcon
-import ${model.packageName}.core.designsystem.icon.AwesomeIcons
-import ${model.packageName}.core.designsystem.icon.AwesomeIconSource
+$designSystemImports
 $imports
-${if (model.diFramework == DiFramework.HILT) "import dagger.hilt.android.AndroidEntryPoint" else ""}
-
-private data class FeatureTab(
-    val index: Int,
-    val title: String,
-    val icon: AwesomeIconSource,
-    val content: @Composable (Modifier) -> Unit
-)
-
+${if (model.diFramework == DiFramework.HILT) "import dagger.hilt.android.AndroidEntryPoint\n" else ""}$tabDeclaration
 ${hiltAnnotation}class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         $edgeToEdgeCall
         setContent {
-            AwesomeTheme {
-                val tabs = remember {
-                    listOf(
-                        $itemsData
-                    )
-                }
-                var selectedTabIndex by remember { mutableIntStateOf(0) }
-
+            $themeWrapperStart$tabInitLogic
                 $uiLayoutCode
-            }
+            $themeWrapperEnd
         }
     }
 }
+$mainScreenComposable
 """.trimIndent()
     }
 

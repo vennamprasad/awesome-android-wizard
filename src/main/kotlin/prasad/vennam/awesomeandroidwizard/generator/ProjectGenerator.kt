@@ -10,6 +10,7 @@ import java.io.File
 object ProjectGenerator {
 
     fun generate(model: WizardModel): File {
+        model.ensureCoreModuleDependencies()
         val rootDir = File(model.projectLocation)
         if (!rootDir.exists()) {
             rootDir.mkdirs()
@@ -29,7 +30,7 @@ object ProjectGenerator {
 
         // Pre-commit git hooks
         val githooksDir = File(rootDir, ".githooks")
-        createFile(githooksDir, "pre-commit", RootFilesTemplate.generatePreCommitHook())
+        createFile(githooksDir, "pre-commit", RootFilesTemplate.generatePreCommitHook(model))
         File(githooksDir, "pre-commit").setExecutable(true)
 
         // Gradle wrapper
@@ -209,18 +210,35 @@ object ProjectGenerator {
     }
 
     private fun copyWrapperFiles(rootDir: File) {
-        val candidates = listOf(
-            File("/Users/prasadvennam/MY WORK/IDEA-PROJECTS/awesome-android-wizard"),
-            File("/Users/prasadvennam/AndroidStudioProjects/nowinandroid")
+        val gradlewDest = File(rootDir, "gradlew")
+        val gradlewBatDest = File(rootDir, "gradlew.bat")
+        val jarDest = File(rootDir, "gradle/wrapper/gradle-wrapper.jar")
+        jarDest.parentFile?.mkdirs()
+
+        // 1. Primary: Extract from bundled plugin resources
+        val gradlewStream = ProjectGenerator::class.java.getResourceAsStream("/wrapper/gradlew")
+        val gradlewBatStream = ProjectGenerator::class.java.getResourceAsStream("/wrapper/gradlew.bat")
+        val jarStream = ProjectGenerator::class.java.getResourceAsStream("/wrapper/gradle-wrapper.jar")
+
+        if (gradlewStream != null && jarStream != null) {
+            gradlewStream.use { input -> gradlewDest.outputStream().use { output -> input.copyTo(output) } }
+            gradlewDest.setExecutable(true)
+
+            gradlewBatStream?.use { input -> gradlewBatDest.outputStream().use { output -> input.copyTo(output) } }
+            jarStream.use { input -> jarDest.outputStream().use { output -> input.copyTo(output) } }
+            return
+        }
+
+        // 2. Secondary fallback: Local workspace or candidate project directories
+        val candidates = listOfNotNull(
+            File(".").canonicalFile,
+            File(System.getProperty("user.dir", ".")),
+            System.getProperty("user.home")?.let { File(it, "AndroidStudioProjects/nowinandroid") }
         )
         for (candidate in candidates) {
             val gradlewSrc = File(candidate, "gradlew")
             val jarSrc = File(candidate, "gradle/wrapper/gradle-wrapper.jar")
             if (gradlewSrc.exists() && jarSrc.exists()) {
-                val gradlewDest = File(rootDir, "gradlew")
-                val gradlewBatDest = File(rootDir, "gradlew.bat")
-                val jarDest = File(rootDir, "gradle/wrapper/gradle-wrapper.jar")
-
                 gradlewSrc.copyTo(gradlewDest, overwrite = true)
                 gradlewDest.setExecutable(true)
 

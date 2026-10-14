@@ -33,12 +33,12 @@ plugins {
 
 android {
     namespace = "$wearPackage"
-    compileSdk = 37
+    compileSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
 
     defaultConfig {
         applicationId = "$wearPackage"
-        minSdk = 30
-        targetSdk = 37
+        minSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.WEAR_MIN_SDK}
+        targetSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
         versionCode = 1
         versionName = "1.0.0"
     }
@@ -64,10 +64,13 @@ dependencies {
     implementation(libs.androidx.wear.compose.material3)
     implementation(libs.androidx.wear.compose.foundation)
     implementation(libs.androidx.wear.compose.navigation)
+    implementation(libs.androidx.wear.tiles)
     implementation(libs.play.services.wearable)
+    implementation(libs.guava)
 }
 """.trimIndent()
         buildFile.writeText(buildContent)
+        ensureWearDependenciesInCatalog(projectRootDir)
 
         // 3. Proguard rules
         File(wearDir, "proguard-rules.pro").writeText("# Wear OS Proguard Rules\n")
@@ -260,5 +263,25 @@ class MainTileService : TileService() {
             }
         }
         return null
+    }
+
+    private fun ensureWearDependenciesInCatalog(rootDir: File) {
+        val tomlFile = File(rootDir, "gradle/libs.versions.toml")
+        if (!tomlFile.exists()) return
+        var toml = tomlFile.readText()
+
+        if (!toml.contains("wearTiles")) {
+            toml = toml.replaceFirst("[versions]", "[versions]\nwearTiles = \"${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.WEAR_TILES}\"")
+        }
+        if (!toml.contains("guava = \"") && !toml.contains("guava = '")) {
+            toml = toml.replaceFirst("[versions]", "[versions]\nguava = \"${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.GUAVA}\"")
+        }
+        if (!toml.contains("androidx-wear-tiles")) {
+            toml = toml.replaceFirst("[libraries]", "[libraries]\nandroidx-wear-tiles = { group = \"androidx.wear.tiles\", name = \"tiles\", version.ref = \"wearTiles\" }")
+        }
+        if (!toml.contains("guava = { group = \"com.google.guava\"")) {
+            toml = toml.replaceFirst("[libraries]", "[libraries]\nguava = { group = \"com.google.guava\", name = \"guava\", version.ref = \"guava\" }")
+        }
+        tomlFile.writeText(toml)
     }
 }

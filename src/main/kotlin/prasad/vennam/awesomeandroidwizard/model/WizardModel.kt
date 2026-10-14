@@ -110,9 +110,9 @@ data class WizardModel(
     var projectName: String = "MyAwesomeApp",
     var packageName: String = "com.example.myawesomeapp",
     var projectLocation: String = System.getProperty("user.home") + "/AndroidStudioProjects/MyAwesomeApp",
-    var minSdk: Int = 26,
-    var targetSdk: Int = 35,
-    var compileSdk: Int = 37,
+    var minSdk: Int = prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.MIN_SDK,
+    var targetSdk: Int = prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.TARGET_SDK,
+    var compileSdk: Int = prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK,
     var targetFormFactor: TargetFormFactor = TargetFormFactor.MOBILE,
     var colorPreset: ColorPreset = ColorPreset.DYNAMIC,
     var cornerStyle: CornerStyle = CornerStyle.ROUNDED,
@@ -207,7 +207,43 @@ data class WizardModel(
         featureModules.remove(sanitized)
     }
 
+    fun ensureCoreModuleDependencies() {
+        if (architecture == ArchitectureType.SINGLE_MODULE) {
+            selectedCoreModules.clear()
+            featureModules.clear()
+            return
+        }
+
+        // If feature modules exist, core:model, core:ui, core:designsystem, core:data are required
+        if (featureModules.isNotEmpty()) {
+            selectedCoreModules.add("core:model")
+            selectedCoreModules.add("core:designsystem")
+            selectedCoreModules.add("core:ui")
+            selectedCoreModules.add("core:data")
+        }
+
+        // If testing is selected, model and data are required
+        if (selectedCoreModules.contains("core:testing") || selectedCoreModules.contains("core/testing")) {
+            selectedCoreModules.add("core:model")
+            selectedCoreModules.add("core:data")
+        }
+
+        // If data, network, or database are selected, model is required
+        if (selectedCoreModules.contains("core:data") ||
+            selectedCoreModules.contains("core:network") ||
+            selectedCoreModules.contains("core:database")
+        ) {
+            selectedCoreModules.add("core:model")
+        }
+
+        // If ui is selected, designsystem is required
+        if (selectedCoreModules.contains("core:ui") || selectedCoreModules.contains("core/ui")) {
+            selectedCoreModules.add("core:designsystem")
+        }
+    }
+
     fun getAllSelectedModules(): List<String> {
+        ensureCoreModuleDependencies()
         val list = mutableListOf<String>()
         list.addAll(selectedCoreModules)
         list.addAll(featureModules.map { "feature:$it" })

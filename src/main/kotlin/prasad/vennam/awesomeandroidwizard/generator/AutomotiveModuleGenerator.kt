@@ -33,12 +33,12 @@ plugins {
 
 android {
     namespace = "$autoPackage"
-    compileSdk = 37
+    compileSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
 
     defaultConfig {
         applicationId = "$autoPackage"
-        minSdk = 26
-        targetSdk = 37
+        minSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.AUTOMOTIVE_MIN_SDK}
+        targetSdk = ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK}
         versionCode = 1
         versionName = "1.0.0"
     }

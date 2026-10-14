@@ -98,16 +98,20 @@ object ArchitectureAuditor {
     }
 
     fun parseIncludedModules(settingsFile: File): List<String> {
-        val lines = settingsFile.readLines()
-        val regex = """include\(\s*["']([^"']+)["']\s*\)""".toRegex()
-        val modules = mutableListOf<String>()
+        val content = settingsFile.readText()
+        val cleanContent = content.lines().filterNot {
+            val t = it.trim()
+            t.startsWith("//") || t.startsWith("/*") || t.startsWith("*")
+        }.joinToString("\n")
 
-        for (line in lines) {
-            val trimmed = line.trim()
-            if (trimmed.startsWith("//") || trimmed.startsWith("/*")) continue
-            val matches = regex.findAll(trimmed)
-            for (match in matches) {
-                val mod = match.groupValues[1]
+        val modules = mutableListOf<String>()
+        val includeBlockRegex = """include\s*(?:\(([^)]+)\)|([^\n]+))""".toRegex()
+        val quoteRegex = """["'](:[^"']+)["']""".toRegex()
+
+        for (match in includeBlockRegex.findAll(cleanContent)) {
+            val block = match.value
+            for (quoted in quoteRegex.findAll(block)) {
+                val mod = quoted.groupValues[1].trim()
                 if (mod.isNotEmpty() && !modules.contains(mod)) {
                     modules.add(mod)
                 }
@@ -117,14 +121,27 @@ object ArchitectureAuditor {
     }
 
     fun parseModuleDependencies(buildContent: String): List<String> {
-        val regex = """project\(\s*["']([^"']+)["']\s*\)""".toRegex()
         val list = mutableListOf<String>()
-        for (match in regex.findAll(buildContent)) {
-            val dep = match.groupValues[1]
+
+        // 1. Traditional project(":name") or project(path = ":name")
+        val projectFuncRegex = """project\(\s*(?:path\s*=\s*)?["']([^"']+)["']\s*\)""".toRegex()
+        for (match in projectFuncRegex.findAll(buildContent)) {
+            val dep = match.groupValues[1].trim()
             if (dep.isNotEmpty() && !list.contains(dep)) {
                 list.add(dep)
             }
         }
+
+        // 2. Type-safe accessors: projects.core.model -> :core:model
+        val accessorRegex = """projects\.([a-zA-Z0-9_.]+)""".toRegex()
+        for (match in accessorRegex.findAll(buildContent)) {
+            val rawPath = match.groupValues[1]
+            val dep = ":" + rawPath.replace(".", ":")
+            if (!list.contains(dep)) {
+                list.add(dep)
+            }
+        }
+
         return list
     }
 

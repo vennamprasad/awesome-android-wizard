@@ -17,6 +17,8 @@ import java.awt.Insets
 import java.io.File
 import javax.swing.BorderFactory
 import javax.swing.ButtonGroup
+import com.intellij.icons.AllIcons
+import prasad.vennam.awesomeandroidwizard.model.ProjectValidator
 import javax.swing.JPanel
 import javax.swing.JRadioButton
 import javax.swing.event.DocumentEvent
@@ -32,6 +34,15 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
 
     private val ciCheckBox = JBCheckBox("Scaffold GitHub Actions CI (.github/workflows)", model.generateCiWorkflow)
     private val detektCheckBox = JBCheckBox("Configure Detekt & Compose Lints", model.generateDetekt)
+
+    private val errorLabel = JBLabel().apply {
+        isVisible = false
+    }
+
+    private var isPackageCustomized = false
+    private var isUpdatingInternally = false
+
+    var onValidationChanged: ((ProjectValidator.ValidationResult) -> Unit)? = null
 
     init {
         border = BorderFactory.createEmptyBorder(15, 20, 15, 20)
@@ -118,7 +129,41 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
         devOpsPanel.add(detektCheckBox)
         formPanel.add(devOpsPanel, gbc)
 
+        // 8. Validation Feedback Banner
+        gbc.gridx = 0; gbc.gridy = 8; gbc.gridwidth = 2
+        formPanel.add(errorLabel, gbc)
+
         add(formPanel, BorderLayout.NORTH)
+        validateInputs()
+    }
+
+    fun validateInputs(): ProjectValidator.ValidationResult {
+        val result = ProjectValidator.validateAll(
+            nameField.text,
+            packageField.text,
+            locationField.text
+        )
+
+        when (result) {
+            is ProjectValidator.ValidationResult.Error -> {
+                errorLabel.icon = AllIcons.General.Error
+                errorLabel.text = "<html><font color='#dc2626'><b>${result.message}</b></font></html>"
+                errorLabel.isVisible = true
+            }
+            is ProjectValidator.ValidationResult.Warning -> {
+                errorLabel.icon = AllIcons.General.Warning
+                errorLabel.text = "<html><font color='#d97706'>${result.message}</font></html>"
+                errorLabel.isVisible = true
+            }
+            ProjectValidator.ValidationResult.Valid -> {
+                errorLabel.icon = null
+                errorLabel.text = ""
+                errorLabel.isVisible = false
+            }
+        }
+
+        onValidationChanged?.invoke(result)
+        return result
     }
 
     private fun setupListeners() {
@@ -130,36 +175,55 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
             private fun update() {
                 val name = nameField.text.trim()
                 model.projectName = name
-                val sanitized = name.lowercase().replace(" ", "")
-                model.packageName = "com.example.$sanitized"
-                packageField.text = model.packageName
+                val sanitized = name.lowercase().replace(" ", "").replace(Regex("[^a-zA-Z0-9]"), "")
+                
+                if (!isPackageCustomized) {
+                    isUpdatingInternally = true
+                    model.packageName = if (sanitized.isNotEmpty()) "com.example.$sanitized" else "com.example.app"
+                    packageField.text = model.packageName
+                    isUpdatingInternally = false
+                }
 
                 val parent = File(model.projectLocation).parent ?: (System.getProperty("user.home") + "/AndroidStudioProjects")
                 model.projectLocation = "$parent/$name"
                 locationField.text = model.projectLocation
+                validateInputs()
             }
         })
 
         packageField.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent?) { model.packageName = packageField.text.trim() }
-            override fun removeUpdate(e: DocumentEvent?) { model.packageName = packageField.text.trim() }
-            override fun changedUpdate(e: DocumentEvent?) { model.packageName = packageField.text.trim() }
+            override fun insertUpdate(e: DocumentEvent?) = update()
+            override fun removeUpdate(e: DocumentEvent?) = update()
+            override fun changedUpdate(e: DocumentEvent?) = update()
+
+            private fun update() {
+                if (!isUpdatingInternally) {
+                    isPackageCustomized = true
+                }
+                model.packageName = packageField.text.trim()
+                validateInputs()
+            }
         })
 
         locationField.textField.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent?) { model.projectLocation = locationField.text.trim() }
-            override fun removeUpdate(e: DocumentEvent?) { model.projectLocation = locationField.text.trim() }
-            override fun changedUpdate(e: DocumentEvent?) { model.projectLocation = locationField.text.trim() }
+            override fun insertUpdate(e: DocumentEvent?) = update()
+            override fun removeUpdate(e: DocumentEvent?) = update()
+            override fun changedUpdate(e: DocumentEvent?) = update()
+
+            private fun update() {
+                model.projectLocation = locationField.text.trim()
+                validateInputs()
+            }
         })
 
         minSdkCombo.addActionListener {
-            model.minSdk = minSdkCombo.selectedItem as? Int ?: 26
+            model.minSdk = minSdkCombo.selectedItem as? Int ?: prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.MIN_SDK
         }
 
         targetSdkCombo.addActionListener {
-            val target = targetSdkCombo.selectedItem as? Int ?: 35
+            val target = targetSdkCombo.selectedItem as? Int ?: prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.TARGET_SDK
             model.targetSdk = target
-            model.compileSdk = maxOf(target, 37)
+            model.compileSdk = maxOf(target, prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK)
         }
     }
 }

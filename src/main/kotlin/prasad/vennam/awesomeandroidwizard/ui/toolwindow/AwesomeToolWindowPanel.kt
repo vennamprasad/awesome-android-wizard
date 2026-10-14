@@ -1,11 +1,15 @@
 package prasad.vennam.awesomeandroidwizard.ui.toolwindow
 
 import com.intellij.icons.AllIcons
+import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
 import com.intellij.ui.treeStructure.Tree
+import prasad.vennam.awesomeandroidwizard.config.AwesomeVersions
 import prasad.vennam.awesomeandroidwizard.model.ArchitectureAuditor
 import prasad.vennam.awesomeandroidwizard.ui.NewAutomotiveModuleDialog
 import prasad.vennam.awesomeandroidwizard.ui.NewBenchmarkModuleDialog
@@ -119,15 +123,74 @@ class AwesomeToolWindowPanel(private val project: Project) : JPanel(BorderLayout
             margin = Insets(8, 8, 8, 8)
         }
 
-        if (catalogFile != null && catalogFile.exists()) {
-            catalogText.text = catalogFile.readText()
-            catalogText.caretPosition = 0
-            panel.add(JBLabel("<html><b>gradle/libs.versions.toml</b> (${catalogFile.length()} bytes)</html>"), BorderLayout.NORTH)
-        } else {
-            catalogText.text = "# No libs.versions.toml found in project root."
-            panel.add(JBLabel("No Version Catalog detected in gradle/libs.versions.toml"), BorderLayout.NORTH)
+        val headerPanel = JPanel(BorderLayout(6, 6))
+
+        fun reloadCatalog() {
+            headerPanel.removeAll()
+            if (catalogFile != null && catalogFile.exists()) {
+                val rawText = catalogFile.readText()
+                catalogText.text = rawText
+                catalogText.caretPosition = 0
+
+                val statuses = AwesomeVersions.auditTomlVersions(rawText)
+                val outdated = statuses.filter { it.isOutdated }
+
+                val topInfoPanel = JPanel().apply {
+                    layout = BoxLayout(this, BoxLayout.Y_AXIS)
+                }
+
+                val titleLabel = JBLabel("<html><b>gradle/libs.versions.toml</b> (${catalogFile.length()} bytes) &nbsp;|&nbsp; Standard: <b>AGP ${AwesomeVersions.AGP}</b>, <b>Kotlin ${AwesomeVersions.KOTLIN}</b>, <b>SDK ${AwesomeVersions.COMPILE_SDK}</b></html>")
+                topInfoPanel.add(titleLabel)
+                topInfoPanel.add(Box.createVerticalStrut(6))
+
+                if (outdated.isNotEmpty()) {
+                    val alertPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0))
+                    val warnLabel = JBLabel("<html><font color='#d97706'>⚠️ <b>${outdated.size} version(s) differ from Awesome Android Standard</b></font></html>", AllIcons.General.Warning, SwingConstants.LEFT)
+                    val upgradeBtn = JButton("Upgrade to Awesome Stack", AllIcons.Actions.Execute).apply {
+                        margin = Insets(2, 8, 2, 8)
+                        addActionListener {
+                            val confirm = Messages.showYesNoDialog(
+                                project,
+                                "Update ${outdated.size} dependency versions in libs.versions.toml to the latest verified Awesome Stack?\n\nUpdated items: ${outdated.joinToString { it.key }}",
+                                "Upgrade Version Catalog",
+                                Messages.getQuestionIcon()
+                            )
+                            if (confirm == Messages.YES) {
+                                val upgradedContent = AwesomeVersions.upgradeTomlContent(rawText)
+                                WriteCommandAction.runWriteCommandAction(project) {
+                                    catalogFile.writeText(upgradedContent)
+                                    LocalFileSystem.getInstance().refreshIoFiles(listOf(catalogFile))
+                                }
+                                reloadCatalog()
+                                Messages.showInfoMessage(
+                                    project,
+                                    "Successfully upgraded ${outdated.size} dependency versions in gradle/libs.versions.toml!\nPlease run 'Sync Project with Gradle Files'.",
+                                    "Awesome Stack Updated"
+                                )
+                            }
+                        }
+                    }
+                    alertPanel.add(warnLabel)
+                    alertPanel.add(Box.createHorizontalStrut(12))
+                    alertPanel.add(upgradeBtn)
+                    topInfoPanel.add(alertPanel)
+                } else {
+                    val okLabel = JBLabel("<html><font color='#16a34a'>✅ All core dependencies and plugins match latest Awesome Android Standard.</font></html>", AllIcons.General.InspectionsOK, SwingConstants.LEFT)
+                    topInfoPanel.add(okLabel)
+                }
+
+                headerPanel.add(topInfoPanel, BorderLayout.CENTER)
+            } else {
+                catalogText.text = "# No libs.versions.toml found in project root."
+                headerPanel.add(JBLabel("No Version Catalog detected in gradle/libs.versions.toml"), BorderLayout.NORTH)
+            }
+            headerPanel.revalidate()
+            headerPanel.repaint()
         }
 
+        reloadCatalog()
+
+        panel.add(headerPanel, BorderLayout.NORTH)
         panel.add(JBScrollPane(catalogText), BorderLayout.CENTER)
         return panel
     }

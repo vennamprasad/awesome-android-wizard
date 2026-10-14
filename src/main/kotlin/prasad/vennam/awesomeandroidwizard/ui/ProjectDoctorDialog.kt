@@ -97,9 +97,15 @@ class ProjectDoctorDialog(private val currentProject: Project?) : DialogWrapper(
 
         // 1. Android SDK Check
         val localProps = File(rootDir, "local.properties")
-        val envSdk = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
-        val defaultMacSdk = File(System.getProperty("user.home"), "Library/Android/sdk")
-        val hasSdk = localProps.exists() || envSdk != null || defaultMacSdk.exists()
+        val userHome = System.getProperty("user.home")
+        val sdkCandidates = listOfNotNull(
+            System.getenv("ANDROID_HOME"),
+            System.getenv("ANDROID_SDK_ROOT"),
+            "$userHome/Library/Android/sdk",
+            "$userHome/AppData/Local/Android/Sdk",
+            "$userHome/Android/Sdk"
+        )
+        val hasSdk = localProps.exists() || sdkCandidates.any { File(it).exists() }
         list.add(
             DiagnosticCheck(
                 "Android SDK Environment",
@@ -121,7 +127,7 @@ class ProjectDoctorDialog(private val currentProject: Project?) : DialogWrapper(
                 "Gradle Wrapper & Tooling",
                 hasWrapper && is810,
                 if (hasWrapper && is810) "Gradle 9+ / 8.10+ wrapper installed and configured."
-                else "Gradle wrapper missing or outdated. Recommended: Gradle 9.8.1."
+                else "Gradle wrapper missing or outdated. Recommended: Gradle ${prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.GRADLE_WRAPPER}."
             )
         )
 

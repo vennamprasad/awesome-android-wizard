@@ -1,5 +1,6 @@
 package prasad.vennam.awesomeandroidwizard.generator.templates
 
+import prasad.vennam.awesomeandroidwizard.config.AwesomeVersions
 import prasad.vennam.awesomeandroidwizard.model.DatabaseFramework
 import prasad.vennam.awesomeandroidwizard.model.DiFramework
 import prasad.vennam.awesomeandroidwizard.model.NetworkingFramework
@@ -10,53 +11,55 @@ object VersionCatalogTemplate {
         val sb = StringBuilder()
         sb.appendLine("""
 [versions]
-agp = "9.4.1"
-kotlin = "2.4.21"
-coreKtx = "1.19.1"
-lifecycleRuntimeKtx = "2.11.0"
-activityCompose = "1.13.0"
-composeBom = "2026.09.00"
-navigationCompose = "2.10.2"
-navigation3 = "1.0.0-alpha01"
-coroutines = "1.11.0"
-serialization = "1.11.0"
-dataStore = "1.2.1"
+agp = "${AwesomeVersions.AGP}"
+kotlin = "${AwesomeVersions.KOTLIN}"
+coreKtx = "${AwesomeVersions.CORE_KTX}"
+lifecycleRuntimeKtx = "${AwesomeVersions.LIFECYCLE_RUNTIME_KTX}"
+activityCompose = "${AwesomeVersions.ACTIVITY_COMPOSE}"
+composeBom = "${AwesomeVersions.COMPOSE_BOM}"
+navigationCompose = "${AwesomeVersions.NAVIGATION_COMPOSE}"
+navigation3 = "${AwesomeVersions.NAVIGATION_3}"
+coroutines = "${AwesomeVersions.COROUTINES}"
+serialization = "${AwesomeVersions.SERIALIZATION}"
+dataStore = "${AwesomeVersions.DATASTORE}"
 """.trimIndent())
 
         if (model.diFramework == DiFramework.KOIN) {
-            sb.appendLine("koin = \"4.0.0\"")
+            sb.appendLine("koin = \"${AwesomeVersions.KOIN}\"")
         } else {
-            sb.appendLine("hilt = \"2.60.1\"")
-            sb.appendLine("ksp = \"2.3.12\"")
+            sb.appendLine("hilt = \"${AwesomeVersions.HILT}\"")
+            sb.appendLine("ksp = \"${AwesomeVersions.KSP}\"")
         }
 
         if (model.networking == NetworkingFramework.KTOR) {
-            sb.appendLine("ktor = \"3.0.0\"")
+            sb.appendLine("ktor = \"${AwesomeVersions.KTOR}\"")
         } else {
-            sb.appendLine("retrofit = \"3.0.0\"")
-            sb.appendLine("okhttp = \"5.5.0\"")
+            sb.appendLine("retrofit = \"${AwesomeVersions.RETROFIT}\"")
+            sb.appendLine("okhttp = \"${AwesomeVersions.OKHTTP}\"")
         }
 
         val hasRoom = model.database == DatabaseFramework.ROOM || model.selectedCoreModules.any { it.contains("database") }
         if (hasRoom) {
-            sb.appendLine("room = \"2.8.5\"")
+            sb.appendLine("room = \"${AwesomeVersions.ROOM}\"")
             if (model.diFramework != DiFramework.HILT) {
-                sb.appendLine("ksp = \"2.3.12\"")
+                sb.appendLine("ksp = \"${AwesomeVersions.KSP}\"")
             }
         }
 
         sb.appendLine("""
-junit = "4.13.2"
-junitVersion = "1.3.0"
-espressoCore = "3.7.0"
-turbine = "1.2.1"
-mockk = "1.14.11"
-androidxBenchmark = "1.3.3"
-androidxUiautomator = "2.3.0"
-baselineprofile = "1.3.3"
-wearCompose = "1.4.1"
-playServicesWearable = "19.0.0"
-carApp = "1.7.0"
+junit = "${AwesomeVersions.JUNIT}"
+junitVersion = "${AwesomeVersions.JUNIT_VERSION}"
+espressoCore = "${AwesomeVersions.ESPRESSO_CORE}"
+turbine = "${AwesomeVersions.TURBINE}"
+mockk = "${AwesomeVersions.MOCKK}"
+androidxBenchmark = "${AwesomeVersions.ANDROIDX_BENCHMARK}"
+androidxUiautomator = "${AwesomeVersions.ANDROIDX_UIAUTOMATOR}"
+baselineprofile = "${AwesomeVersions.BASELINE_PROFILE}"
+wearCompose = "${AwesomeVersions.WEAR_COMPOSE}"
+wearTiles = "${AwesomeVersions.WEAR_TILES}"
+guava = "${AwesomeVersions.GUAVA}"
+playServicesWearable = "${AwesomeVersions.PLAY_SERVICES_WEARABLE}"
+carApp = "${AwesomeVersions.CAR_APP}"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -79,6 +82,7 @@ androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
+guava = { group = "com.google.guava", name = "guava", version.ref = "guava" }
 """.trimIndent())
 
         if (model.diFramework == DiFramework.KOIN) {
@@ -134,6 +138,7 @@ androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomato
 androidx-wear-compose-material3 = { group = "androidx.wear.compose", name = "compose-material3", version.ref = "wearCompose" }
 androidx-wear-compose-foundation = { group = "androidx.wear.compose", name = "compose-foundation", version.ref = "wearCompose" }
 androidx-wear-compose-navigation = { group = "androidx.wear.compose", name = "compose-navigation", version.ref = "wearCompose" }
+androidx-wear-tiles = { group = "androidx.wear.tiles", name = "tiles", version.ref = "wearTiles" }
 play-services-wearable = { group = "com.google.android.gms", name = "play-services-wearable", version.ref = "playServicesWearable" }
 
 # Android Auto / Automotive

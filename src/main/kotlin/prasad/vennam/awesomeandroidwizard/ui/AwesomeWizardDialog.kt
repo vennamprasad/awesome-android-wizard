@@ -23,6 +23,8 @@ import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
 
+import prasad.vennam.awesomeandroidwizard.model.ProjectValidator
+
 class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project, true) {
 
     private val model = WizardModel()
@@ -44,6 +46,11 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
 
     init {
         title = "Awesome Android Project Wizard"
+        step1.onValidationChanged = {
+            if (currentStep == 0 && ::nextButton.isInitialized) {
+                nextButton.isEnabled = !it.isError
+            }
+        }
         init()
         updateStepUI()
     }
@@ -83,6 +90,12 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
 
         nextButton = JButton("Next").apply {
             addActionListener {
+                if (currentStep == 0) {
+                    val validation = step1.validateInputs()
+                    if (validation.isError) {
+                        return@addActionListener
+                    }
+                }
                 if (currentStep < totalSteps - 1) {
                     currentStep++
                     updateStepUI()
@@ -103,7 +116,8 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
             prevButton.isEnabled = currentStep > 0
         }
         if (::nextButton.isInitialized) {
-            nextButton.isEnabled = currentStep < totalSteps - 1
+            val step0Valid = if (currentStep == 0) !step1.validateInputs().isError else true
+            nextButton.isEnabled = currentStep < totalSteps - 1 && step0Valid
         }
 
         // Enable OK button only on last step
@@ -123,6 +137,29 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
     }
 
     override fun doOKAction() {
+        val preflight = ProjectValidator.validateAll(
+            model.projectName,
+            model.packageName,
+            model.projectLocation
+        )
+
+        if (preflight is ProjectValidator.ValidationResult.Error) {
+            Messages.showErrorDialog(contentPanel, preflight.message, "Invalid Project Configuration")
+            return
+        }
+
+        if (preflight is ProjectValidator.ValidationResult.Warning) {
+            val proceed = Messages.showYesNoDialog(
+                contentPanel,
+                "${preflight.message}\n\nDo you want to proceed and generate inside this directory?",
+                "Target Directory Warning",
+                Messages.getWarningIcon()
+            )
+            if (proceed != Messages.YES) {
+                return
+            }
+        }
+
         super.doOKAction()
 
         ProgressManager.getInstance().run(object : Task.Backgroundable(project, "Generating Awesome Android Project...", false) {
