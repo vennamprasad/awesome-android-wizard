@@ -138,7 +138,7 @@ class AwesomeToolWindowPanel(private val project: Project) : JPanel(BorderLayout
             border = BorderFactory.createEmptyBorder(12, 12, 12, 12)
         }
 
-        panel.add(JBLabel("<html><h3>Rapid Architecture Generators</h3><p color='#777777'>One-click Clean Architecture scaffolders for day-2 development.</p></html>"))
+        panel.add(JBLabel("<html><h3>Rapid Architecture Generators</h3><p color='#777777'>One-click Clean Architecture scaffolders for multi-module projects.</p></html>"))
         panel.add(Box.createVerticalStrut(10))
 
         // MVI Slice

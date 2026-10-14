@@ -17,15 +17,21 @@ An enterprise-grade project and module scaffolding platform for **Android Studio
 - **Minimal / Spike Prototype**: Single `:app` module, ultra-fast builds for rapid proofs of concept.
 - **Custom Configuration**: Full manual control over every library, core module, and architecture parameter.
 
-### 2. ⚡ Day-2 Scaffolding: Feature & Core Modules
-- **New Feature Module**: Right-click anywhere ➔ **New ➔ Awesome Feature Module...** (<kbd>Ctrl+Alt+Shift+F</kbd>)
+### 2. ⚡ Modular Architecture Scaffolding: Feature & Core Modules
+- **New Feature Module**: Right-click anywhere ➔ **Awesome Android Wizard ➔ New Awesome Feature Module...** (<kbd>Ctrl+Alt+Shift+F</kbd>)
   - Generates decoupled `:feature:<name>` with Compose UI, ViewModel, and automatic settings/app dependency wiring.
-- **New Core Module**: Right-click anywhere ➔ **New ➔ Awesome Core Module...** (<kbd>Ctrl+Alt+Shift+C</kbd>)
+- **New Core Module**: Right-click anywhere ➔ **Awesome Android Wizard ➔ New Awesome Core Module...** (<kbd>Ctrl+Alt+Shift+C</kbd>)
   - Instantly scaffolds `:core:<name>` with selectable module type:
     - **JVM Library**: Pure Kotlin DSL (`awesome.jvm.library`) with serialization and coroutines.
     - **Android Library**: Standard library (`awesome.android.library`) with Android namespace.
     - **Compose Library**: Android library pre-configured with Jetpack Compose & Material 3.
   - Automatically updates `settings.gradle.kts` and VFS file tree.
+- **New MVI Feature Slice**: Right-click any module ➔ **Awesome Android Wizard ➔ New Awesome MVI Feature Slice...**
+  - Generates dedicated `<Feature>Contract.kt` (`UiState`, `UiIntent`, `UiEffect`), `<Feature>ViewModel.kt`, `<Feature>Screen.kt`, `<Feature>Navigation.kt`, and Turbine unit tests.
+- **New Repository Slice**: Right-click any module ➔ **Awesome Android Wizard ➔ New Awesome Repository Slice...**
+  - Generates Domain Entity, Network DTO + Mapper, Repository interface, Default implementation, and Test Fake.
+- **Companion Modules (Wear OS, Android Auto, Benchmark)**:
+  - Automated scaffolding for `:wear` (Wear Compose M3 & TileService), `:automotive` (AndroidX Car App Library), and `:benchmark` (Baseline Profiles & Macrobenchmark).
 
 ### 3. 📦 Modern Build System & Convention Plugins
 - **Gradle Convention Plugins (`build-logic`)**: Eliminates build-script duplication across all modules:
@@ -138,7 +144,7 @@ The generated projects follow Google's official Android Architecture Guide and *
    ```bash
    gradle buildPlugin
    ```
-   *(Or locate the pre-built zip at `build/distributions/awesome-android-wizard-1.0.0.zip`)*
+   *(Or locate the pre-built zip at `build/distributions/awesome-android-wizard-1.0.8.zip`)*
 2. In Android Studio or IntelliJ IDEA, open:
    - **Settings** (Windows/Linux) or **Preferences** (macOS) ➔ **Plugins**.
 3. Click the gear icon (⚙️) ➔ **Install Plugin from Disk...**
@@ -169,23 +175,23 @@ The generated projects follow Google's official Android Architecture Guide and *
 
 ---
 
-### 3. Day-2 Scaffolding: Adding a Feature to an Existing Project
+### 3. Feature Scaffolding: Adding a Feature to an Existing Project
 1. In any existing Android Studio project, right-click the project root or the `feature/` directory:
-   - **New ➔ Awesome Feature Module...**
+   - **Awesome Android Wizard ➔ New Awesome Feature Module...**
    - Or press shortcut: <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd> (Mac: <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd>).
 2. Enter the feature name (e.g. `billing` or `dashboard`).
 3. Click **Create Feature Module**.
 4. The wizard will automatically:
-   - Generate `:feature:<name>` with `build.gradle.kts`, `<Name>Screen.kt`, and `<Name>ViewModel.kt`.
+   - Generate `:feature:<name>` with `build.gradle.kts`, `<Name>Contract.kt`, `<Name>ViewModel.kt`, `<Name>Screen.kt`, and `<Name>Navigation.kt`.
    - Add `include(":feature:<name>")` into `settings.gradle.kts`.
    - Wire `implementation(project(":feature:<name>"))` into `app/build.gradle.kts`.
    - Prompt you to Sync Gradle.
 
 ---
 
-### 4. Day-2 Scaffolding: Adding a Core Module to an Existing Project
+### 4. Core Scaffolding: Adding a Core Module to an Existing Project
 1. In any existing Android Studio project, right-click the project root or the `core/` directory:
-   - **New ➔ Awesome Core Module...**
+   - **Awesome Android Wizard ➔ New Awesome Core Module...**
    - Or press shortcut: <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> (Mac: <kbd>Cmd</kbd> + <kbd>Option</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd>).
 2. Enter the core module name (e.g. `analytics`, `security`, `datastore`).
 3. Select Module Type:

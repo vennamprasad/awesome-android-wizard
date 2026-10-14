@@ -45,8 +45,8 @@ intellijPlatform {
             <h4>Key Features:</h4>
             <ul>
                 <li><b>Production Blueprints</b>: Instant archetypes for Startup/Consumer apps, Fintech/Enterprise, and Spike prototypes.</li>
-                <li><b>Day-2 Feature Scaffolder</b>: Right-click <code>New ➔ Awesome Feature Module...</code> to instantly generate feature slices with Compose UI & ViewModel.</li>
-                <li><b>Day-2 Core Scaffolder</b>: Right-click <code>New ➔ Awesome Core Module...</code> to add pure JVM, Android, or Compose libraries.</li>
+                <li><b>Feature Module Scaffolder</b>: Right-click <code>New ➔ Awesome Feature Module...</code> to instantly generate feature slices with Compose UI & ViewModel.</li>
+                <li><b>Core Module Scaffolder</b>: Right-click <code>New ➔ Awesome Core Module...</code> to add pure JVM, Android, or Compose libraries.</li>
                 <li><b>Offline-First Room Persistence</b>: Pre-configured <code>:core:database</code> with Room, KSP, reactive Flow DAOs, and Entity models.</li>
                 <li><b>Shared Test Fixtures</b>: <code>:core:testing</code> with <code>MainDispatcherRule</code> and fake repositories.</li>
                 <li><b>Design System Ecosystem</b>: <code>:core:designsystem</code> with 4dp/8dp spacing tokens, corner radius, type scale, icons, and DataStore theme persistence.</li>
@@ -55,11 +55,11 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
-            <h3>1.0.8 - Day-2 Component Scaffolders, Awesome Architecture Tool Window & Multiplatform Companion Modules</h3>
+            <h3>1.0.8 - Component Scaffolders, Awesome Architecture Tool Window & Multiplatform Companion Modules</h3>
             <ul>
                 <li><b>Awesome Architecture Tool Window:</b> Interactive side panel with module dependency graph, Clean Architecture boundary auditor, circular dependency detection, and Version Catalog inspector.</li>
-                <li><b>Day-2 MVI Feature Slice Scaffolder:</b> One-click scaffolding of MVI Contract (State, Intent, Effect), ViewModel (Hilt or Koin), Compose Screen, Navigation 2.8+ route, and Turbine unit test.</li>
-                <li><b>Day-2 Repository Slice Scaffolder:</b> Instant generation of Domain Model, Network DTO + Mapper, Repository interface, Default implementation, and Test Fake.</li>
+                <li><b>MVI Feature Slice Scaffolder:</b> One-click scaffolding of MVI Contract (State, Intent, Effect), ViewModel (Hilt or Koin), Compose Screen, Navigation 2.8+ route, and Turbine unit test.</li>
+                <li><b>Repository Slice Scaffolder:</b> Instant generation of Domain Model, Network DTO + Mapper, Repository interface, Default implementation, and Test Fake.</li>
                 <li><b>Production Performance & Baseline Profiles:</b> Automated <code>:benchmark</code> module generator with BaselineProfileGenerator and StartupBenchmark rules.</li>
                 <li><b>Wear OS Companion Scaffolder:</b> Instant creation of <code>:wear</code> companion app with Wear Compose M3, TileService, and ambient mode.</li>
                 <li><b>Android Auto & Automotive Scaffolder:</b> Automated <code>:automotive</code> module generation with AndroidX Car App Library, CarAppService, Session, and Screen templates.</li>
@@ -113,7 +113,7 @@ intellijPlatform {
                 <li>Initial release of Awesome Android Wizard on JetBrains Marketplace.</li>
                 <li>Multi-step interactive wizard supporting Clean Architecture MVI & MVVM.</li>
                 <li>Choice of Dependency Injection (Hilt or Koin) and Networking (Ktor or Retrofit).</li>
-                <li>Day-2 Feature and Core module scaffolders with automatic Gradle wiring.</li>
+                <li>Feature and Core module scaffolders with automatic Gradle wiring.</li>
                 <li>Integrated Awesome Project Doctor for diagnostics and architectural boundary enforcement.</li>
                 <li>Pre-configured Git pre-commit hooks and GitHub Actions CI workflow.</li>
             </ul>
