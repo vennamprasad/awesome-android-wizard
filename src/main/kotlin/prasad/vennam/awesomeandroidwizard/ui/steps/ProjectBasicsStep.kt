@@ -32,6 +32,7 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
     private val minSdkCombo = ComboBox(arrayOf(24, 26, 28, 30, 33, 34, 35))
     private val targetSdkCombo = ComboBox(arrayOf(34, 35, 36, 37))
 
+    private val archetypeRadios = mutableMapOf<ArchetypeBlueprint, JRadioButton>()
     private val ciCheckBox = JBCheckBox("Scaffold GitHub Actions CI (.github/workflows)", model.generateCiWorkflow)
     private val detektCheckBox = JBCheckBox("Configure Detekt & Compose Lints", model.generateDetekt)
 
@@ -84,6 +85,7 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
                 ciCheckBox.isSelected = model.generateCiWorkflow
                 detektCheckBox.isSelected = model.generateDetekt
             }
+            archetypeRadios[arch] = radio
             group.add(radio)
             archetypePanel.add(radio)
         }
@@ -225,5 +227,23 @@ class ProjectBasicsStep(private val model: WizardModel) : JPanel(BorderLayout())
             model.targetSdk = target
             model.compileSdk = maxOf(target, prasad.vennam.awesomeandroidwizard.config.AwesomeVersions.COMPILE_SDK)
         }
+    }
+
+    fun refreshFromModel() {
+        archetypeRadios[model.archetype]?.isSelected = true
+        ciCheckBox.isSelected = model.generateCiWorkflow
+        detektCheckBox.isSelected = model.generateDetekt
+        minSdkCombo.selectedItem = model.minSdk
+        targetSdkCombo.selectedItem = model.targetSdk
+        if (nameField.text != model.projectName) {
+            nameField.text = model.projectName
+        }
+        if (packageField.text != model.packageName) {
+            packageField.text = model.packageName
+        }
+        if (locationField.text != model.projectLocation) {
+            locationField.text = model.projectLocation
+        }
+        validateInputs()
     }
 }

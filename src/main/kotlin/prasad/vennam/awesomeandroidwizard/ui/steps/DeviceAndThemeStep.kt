@@ -20,6 +20,10 @@ import javax.swing.JRadioButton
 
 class DeviceAndThemeStep(private val model: WizardModel) : JPanel(BorderLayout()) {
 
+    private val deviceRadios = mutableMapOf<TargetFormFactor, JRadioButton>()
+    private lateinit var colorCombo: ComboBox<ColorPreset>
+    private lateinit var cornerCombo: ComboBox<CornerStyle>
+
     init {
         border = BorderFactory.createEmptyBorder(15, 20, 15, 20)
 
@@ -47,6 +51,7 @@ class DeviceAndThemeStep(private val model: WizardModel) : JPanel(BorderLayout()
             val radio = JRadioButton("<html><b>${device.displayName}</b> &mdash; <font color='#888888'>${device.description}</font></html>")
             radio.isSelected = device == model.targetFormFactor
             radio.addActionListener { model.targetFormFactor = device }
+            deviceRadios[device] = radio
             deviceGroup.add(radio)
             devicePanel.add(radio)
         }
@@ -66,7 +71,7 @@ class DeviceAndThemeStep(private val model: WizardModel) : JPanel(BorderLayout()
 
         themePanel.add(JBLabel("Color Palette:"), tGbc)
 
-        val colorCombo = ComboBox(ColorPreset.values()).apply {
+        colorCombo = ComboBox(ColorPreset.values()).apply {
             selectedItem = this@DeviceAndThemeStep.model.colorPreset
             renderer = object : DefaultListCellRenderer() {
                 override fun getListCellRendererComponent(
@@ -106,7 +111,7 @@ class DeviceAndThemeStep(private val model: WizardModel) : JPanel(BorderLayout()
 
         shapePanel.add(JBLabel("Corner Style:"), sGbc)
 
-        val cornerCombo = ComboBox(CornerStyle.values()).apply {
+        cornerCombo = ComboBox(CornerStyle.values()).apply {
             selectedItem = this@DeviceAndThemeStep.model.cornerStyle
             renderer = object : DefaultListCellRenderer() {
                 override fun getListCellRendererComponent(
@@ -133,5 +138,11 @@ class DeviceAndThemeStep(private val model: WizardModel) : JPanel(BorderLayout()
         mainPanel.add(shapePanel, gbc)
 
         add(mainPanel, BorderLayout.NORTH)
+    }
+
+    fun refreshFromModel() {
+        deviceRadios[model.targetFormFactor]?.isSelected = true
+        colorCombo.selectedItem = model.colorPreset
+        cornerCombo.selectedItem = model.cornerStyle
     }
 }

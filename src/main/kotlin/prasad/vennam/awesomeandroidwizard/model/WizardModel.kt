@@ -158,7 +158,7 @@ data class WizardModel(
                 generateDetekt = true
                 generateDependabot = true
                 selectedCoreModules = mutableSetOf("core:model", "core:data", "core:network", "core:database", "core:ui", "core:designsystem", "core:testing")
-                if (featureModules.isEmpty()) featureModules.add("home")
+                featureModules = mutableSetOf("home")
             }
             ArchetypeBlueprint.FINTECH -> {
                 architecture = ArchitectureType.MODULAR_CLEAN_MVI
@@ -171,9 +171,7 @@ data class WizardModel(
                 generateDetekt = true
                 generateDependabot = true
                 selectedCoreModules = mutableSetOf("core:model", "core:data", "core:network", "core:database", "core:ui", "core:designsystem", "core:testing")
-                if (featureModules.isEmpty()) {
-                    featureModules.addAll(listOf("auth", "dashboard"))
-                }
+                featureModules = mutableSetOf("auth", "dashboard")
             }
             ArchetypeBlueprint.MINIMAL -> {
                 architecture = ArchitectureType.SINGLE_MODULE

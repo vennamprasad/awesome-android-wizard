@@ -1,5 +1,6 @@
 package prasad.vennam.awesomeandroidwizard.ui.steps
 
+import prasad.vennam.awesomeandroidwizard.model.ArchetypeBlueprint
 import prasad.vennam.awesomeandroidwizard.model.DatabaseFramework
 import prasad.vennam.awesomeandroidwizard.model.DiFramework
 import prasad.vennam.awesomeandroidwizard.model.NetworkingFramework
@@ -17,6 +18,10 @@ import javax.swing.JPanel
 import javax.swing.JRadioButton
 
 class TechStackStep(private val model: WizardModel) : JPanel(BorderLayout()) {
+
+    private val diRadios = mutableMapOf<DiFramework, JRadioButton>()
+    private val netRadios = mutableMapOf<NetworkingFramework, JRadioButton>()
+    private val dbRadios = mutableMapOf<DatabaseFramework, JRadioButton>()
 
     init {
         border = BorderFactory.createEmptyBorder(15, 20, 15, 20)
@@ -49,7 +54,11 @@ class TechStackStep(private val model: WizardModel) : JPanel(BorderLayout()) {
         for (di in DiFramework.values()) {
             val radio = JRadioButton(di.displayName)
             radio.isSelected = di == model.diFramework
-            radio.addActionListener { model.diFramework = di }
+            radio.addActionListener {
+                model.diFramework = di
+                model.archetype = ArchetypeBlueprint.CUSTOM
+            }
+            diRadios[di] = radio
             diGroup.add(radio)
             diPanel.add(radio)
         }
@@ -64,7 +73,11 @@ class TechStackStep(private val model: WizardModel) : JPanel(BorderLayout()) {
         for (net in NetworkingFramework.values()) {
             val radio = JRadioButton(net.displayName)
             radio.isSelected = net == model.networking
-            radio.addActionListener { model.networking = net }
+            radio.addActionListener {
+                model.networking = net
+                model.archetype = ArchetypeBlueprint.CUSTOM
+            }
+            netRadios[net] = radio
             netGroup.add(radio)
             netPanel.add(radio)
         }
@@ -79,12 +92,22 @@ class TechStackStep(private val model: WizardModel) : JPanel(BorderLayout()) {
         for (db in DatabaseFramework.values()) {
             val radio = JRadioButton(db.displayName)
             radio.isSelected = db == model.database
-            radio.addActionListener { model.database = db }
+            radio.addActionListener {
+                model.database = db
+                model.archetype = ArchetypeBlueprint.CUSTOM
+            }
+            dbRadios[db] = radio
             dbGroup.add(radio)
             dbPanel.add(radio)
         }
         mainPanel.add(dbPanel, gbc)
 
         add(mainPanel, BorderLayout.NORTH)
+    }
+
+    fun refreshFromModel() {
+        diRadios[model.diFramework]?.isSelected = true
+        netRadios[model.networking]?.isSelected = true
+        dbRadios[model.database]?.isSelected = true
     }
 }

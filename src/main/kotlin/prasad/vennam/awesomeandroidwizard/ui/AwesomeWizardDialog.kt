@@ -110,6 +110,17 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
     }
 
     private fun updateStepUI() {
+        when (currentStep) {
+            0 -> step1.refreshFromModel()
+            1 -> step2.refreshFromModel()
+            2 -> step3.refreshFromModel()
+            3 -> step4.refreshFromModel()
+            4 -> {
+                model.ensureCoreModuleDependencies()
+                step5.refresh()
+            }
+        }
+
         cardLayout.show(contentPanel, currentStep.toString())
 
         if (::prevButton.isInitialized) {
@@ -122,10 +133,6 @@ class AwesomeWizardDialog(private val project: Project?) : DialogWrapper(project
 
         // Enable OK button only on last step
         isOKActionEnabled = currentStep == totalSteps - 1
-
-        if (currentStep == 4) {
-            step5.refresh()
-        }
 
         title = "Awesome Android Wizard (${currentStep + 1}/$totalSteps): " + when (currentStep) {
             0 -> "Project Basics"

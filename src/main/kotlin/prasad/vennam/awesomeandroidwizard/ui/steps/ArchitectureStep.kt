@@ -27,6 +27,8 @@ class ArchitectureStep(private val model: WizardModel) : JPanel(BorderLayout()) 
     private val addFeatureButton = JButton("Add Feature")
     private val featuresContainer = JPanel(FlowLayout(FlowLayout.LEFT, 6, 6))
 
+    private val archRadios = mutableMapOf<ArchitectureType, JRadioButton>()
+
     init {
         border = BorderFactory.createEmptyBorder(15, 20, 15, 20)
 
@@ -53,6 +55,7 @@ class ArchitectureStep(private val model: WizardModel) : JPanel(BorderLayout()) 
                 model.architecture = arch
                 updateModulesForArchitecture(arch)
             }
+            archRadios[arch] = radio
             archGroup.add(radio)
             archPanel.add(radio)
         }
@@ -212,6 +215,21 @@ class ArchitectureStep(private val model: WizardModel) : JPanel(BorderLayout()) 
             model.featureModules.clear()
         } else if (model.featureModules.isEmpty()) {
             model.featureModules.add("home")
+        }
+        renderFeatureChips()
+    }
+
+    fun refreshFromModel() {
+        archRadios[model.architecture]?.isSelected = true
+        val isSingle = model.architecture == ArchitectureType.SINGLE_MODULE
+        conventionPluginsBox.isEnabled = !isSingle
+        conventionPluginsBox.isSelected = model.useConventionPlugins && !isSingle
+        newFeatureField.isEnabled = !isSingle
+        addFeatureButton.isEnabled = !isSingle
+
+        for ((id, cb) in coreModuleCheckboxes) {
+            cb.isEnabled = !isSingle
+            cb.isSelected = !isSingle && model.selectedCoreModules.contains(id)
         }
         renderFeatureChips()
     }
