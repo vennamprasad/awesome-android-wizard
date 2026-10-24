@@ -5,10 +5,10 @@ import java.io.File
 object WearModuleGenerator {
 
     data class WearGenerationResult(
-        val success: Boolean,
+        override val success: Boolean,
         val wearDir: File,
-        val message: String
-    )
+        override val message: String
+    ) : GeneratorResult
 
     fun scaffoldWearModule(projectRootDir: File, customPackage: String? = null): WearGenerationResult {
         val wearDir = File(projectRootDir, "wear")
@@ -16,7 +16,7 @@ object WearModuleGenerator {
             return WearGenerationResult(false, wearDir, "Module ':wear' already exists in this project.")
         }
 
-        val basePackage = customPackage?.takeIf { it.isNotBlank() } ?: detectBasePackage(projectRootDir) ?: "com.example.app"
+        val basePackage = customPackage?.takeIf { it.isNotBlank() } ?: GeneratorUtils.detectBasePackage(projectRootDir) ?: "com.example.app"
         val wearPackage = "$basePackage.wear"
         val pkgPath = wearPackage.replace(".", "/")
 
@@ -231,38 +231,13 @@ class MainTileService : TileService() {
 """.trimIndent())
 
         // 6. Update settings.gradle.kts
-        val settingsFile = File(projectRootDir, "settings.gradle.kts")
-        if (settingsFile.exists()) {
-            val settingsText = settingsFile.readText()
-            val includeStatement = "include(\":wear\")"
-            if (!settingsText.contains(includeStatement)) {
-                settingsFile.appendText("\n$includeStatement\n")
-            }
-        }
+        GeneratorUtils.addModuleToSettingsGradle(projectRootDir, ":wear")
 
         return WearGenerationResult(
             success = true,
             wearDir = wearDir,
             message = "Wear OS Companion module ':wear' successfully created!"
         )
-    }
-
-    private fun detectBasePackage(rootDir: File): String? {
-        val appBuildFile = File(rootDir, "app/build.gradle.kts")
-        if (appBuildFile.exists()) {
-            val content = appBuildFile.readText()
-            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
-            val match = namespaceRegex.find(content)
-            if (match != null) {
-                return match.groupValues[1]
-            }
-            val appIdRegex = """applicationId\s*=\s*["']([^"']+)["']""".toRegex()
-            val appMatch = appIdRegex.find(content)
-            if (appMatch != null) {
-                return appMatch.groupValues[1]
-            }
-        }
-        return null
     }
 
     private fun ensureWearDependenciesInCatalog(rootDir: File) {

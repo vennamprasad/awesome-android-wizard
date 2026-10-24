@@ -1,5 +1,6 @@
 package prasad.vennam.awesomeandroidwizard.generator
 
+import prasad.vennam.awesomeandroidwizard.config.AwesomeVersions
 import prasad.vennam.awesomeandroidwizard.model.DiFramework
 import prasad.vennam.awesomeandroidwizard.model.WizardModel
 import java.io.File
@@ -24,10 +25,10 @@ object MviSliceGenerator {
     )
 
     data class MviGenerationResult(
-        val success: Boolean,
+        override val success: Boolean,
         val generatedFiles: List<File>,
-        val message: String
-    )
+        override val message: String
+    ) : GeneratorResult
 
     fun scaffoldMviSlice(config: MviSliceConfig): MviGenerationResult {
         val sanitized = WizardModel.sanitizeFeatureName(config.sliceName)
@@ -485,7 +486,7 @@ fun ${funName}Record(
 
                 if (navigationFramework == NavigationFramework.NAVIGATION_3) {
                     if (!toml.contains("navigation3 =")) {
-                        toml = toml.replaceFirst("[versions]", "[versions]\nnavigation3 = \"1.0.0-alpha01\"")
+                        toml = toml.replaceFirst("[versions]", "[versions]\nnavigation3 = \"${AwesomeVersions.NAVIGATION_3}\"")
                         modified = true
                     }
                     if (!toml.contains("androidx-navigation3-ui =")) {
@@ -495,7 +496,7 @@ fun ${funName}Record(
                     }
                 } else if (navigationFramework == NavigationFramework.NAV_COMPOSE) {
                     if (!toml.contains("navigationCompose =")) {
-                        toml = toml.replaceFirst("[versions]", "[versions]\nnavigationCompose = \"2.10.2\"")
+                        toml = toml.replaceFirst("[versions]", "[versions]\nnavigationCompose = \"${AwesomeVersions.NAVIGATION_COMPOSE}\"")
                         modified = true
                     }
                     if (!toml.contains("androidx-navigation-compose =")) {
@@ -509,7 +510,7 @@ fun ${funName}Record(
 
                 if (navigationFramework != NavigationFramework.NONE) {
                     if (!toml.contains("serialization =")) {
-                        toml = toml.replaceFirst("[versions]", "[versions]\nserialization = \"1.11.0\"")
+                        toml = toml.replaceFirst("[versions]", "[versions]\nserialization = \"${AwesomeVersions.SERIALIZATION}\"")
                         modified = true
                     }
                     if (!toml.contains("kotlinx-serialization-json =")) {
@@ -533,7 +534,7 @@ fun ${funName}Record(
                 if (diFramework == DiFramework.KOIN) {
                     if (!toml.contains("koin-androidx-compose =")) {
                         if (!toml.contains("koin =")) {
-                            toml = toml.replaceFirst("[versions]", "[versions]\nkoin = \"4.0.0\"")
+                            toml = toml.replaceFirst("[versions]", "[versions]\nkoin = \"${AwesomeVersions.KOIN}\"")
                             modified = true
                         }
                         toml = toml.replaceFirst(
@@ -547,7 +548,7 @@ fun ${funName}Record(
                 if (includeTest) {
                     if (!toml.contains("turbine =")) {
                         if (!toml.contains("turbine = \"")) {
-                            toml = toml.replaceFirst("[versions]", "[versions]\nturbine = \"1.2.1\"")
+                            toml = toml.replaceFirst("[versions]", "[versions]\nturbine = \"${AwesomeVersions.TURBINE}\"")
                             modified = true
                         }
                         toml = toml.replaceFirst(

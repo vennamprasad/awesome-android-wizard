@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
+import prasad.vennam.awesomeandroidwizard.generator.GeneratorUtils
 import prasad.vennam.awesomeandroidwizard.generator.WearModuleGenerator
 import java.awt.BorderLayout
 import java.awt.Dimension
@@ -29,18 +30,8 @@ class NewWearModuleDialog(private val project: Project) : DialogWrapper(project,
     }
 
     private fun detectPackage() {
-        val basePath = project.basePath ?: return
-        val appBuild = File(basePath, "app/build.gradle.kts")
-        if (appBuild.exists()) {
-            val content = appBuild.readText()
-            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
-            val match = namespaceRegex.find(content)
-            if (match != null) {
-                packageField.text = match.groupValues[1]
-                return
-            }
-        }
-        packageField.text = "com.example.app"
+        val basePath = project.basePath?.let { File(it) } ?: return
+        packageField.text = GeneratorUtils.detectBasePackage(basePath) ?: "com.example.app"
     }
 
     override fun createCenterPanel(): JComponent {

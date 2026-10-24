@@ -5,10 +5,10 @@ import java.io.File
 object AutomotiveModuleGenerator {
 
     data class AutomotiveGenerationResult(
-        val success: Boolean,
+        override val success: Boolean,
         val automotiveDir: File,
-        val message: String
-    )
+        override val message: String
+    ) : GeneratorResult
 
     fun scaffoldAutomotiveModule(projectRootDir: File, customPackage: String? = null): AutomotiveGenerationResult {
         val autoDir = File(projectRootDir, "automotive")
@@ -16,7 +16,7 @@ object AutomotiveModuleGenerator {
             return AutomotiveGenerationResult(false, autoDir, "Module ':automotive' already exists in this project.")
         }
 
-        val basePackage = customPackage?.takeIf { it.isNotBlank() } ?: detectBasePackage(projectRootDir) ?: "com.example.app"
+        val basePackage = customPackage?.takeIf { it.isNotBlank() } ?: GeneratorUtils.detectBasePackage(projectRootDir) ?: "com.example.app"
         val autoPackage = "$basePackage.automotive"
         val pkgPath = autoPackage.replace(".", "/")
 
@@ -183,37 +183,12 @@ class MainCarScreen(carContext: CarContext) : Screen(carContext) {
 """.trimIndent())
 
         // 7. Update settings.gradle.kts
-        val settingsFile = File(projectRootDir, "settings.gradle.kts")
-        if (settingsFile.exists()) {
-            val settingsText = settingsFile.readText()
-            val includeStatement = "include(\":automotive\")"
-            if (!settingsText.contains(includeStatement)) {
-                settingsFile.appendText("\n$includeStatement\n")
-            }
-        }
+        GeneratorUtils.addModuleToSettingsGradle(projectRootDir, ":automotive")
 
         return AutomotiveGenerationResult(
             success = true,
             automotiveDir = autoDir,
             message = "Android Auto / Automotive module ':automotive' successfully created!"
         )
-    }
-
-    private fun detectBasePackage(rootDir: File): String? {
-        val appBuildFile = File(rootDir, "app/build.gradle.kts")
-        if (appBuildFile.exists()) {
-            val content = appBuildFile.readText()
-            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
-            val match = namespaceRegex.find(content)
-            if (match != null) {
-                return match.groupValues[1]
-            }
-            val appIdRegex = """applicationId\s*=\s*["']([^"']+)["']""".toRegex()
-            val appMatch = appIdRegex.find(content)
-            if (appMatch != null) {
-                return appMatch.groupValues[1]
-            }
-        }
-        return null
     }
 }

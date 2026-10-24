@@ -82,11 +82,11 @@ class AwesomeToolWindowPanel(private val project: Project) : JPanel(BorderLayout
                 when {
                     text.startsWith("VIOLATION") -> {
                         icon = AllIcons.General.Error
-                        foreground = Color(0xC0, 0x39, 0x2B)
+                        foreground = com.intellij.ui.JBColor(Color(0xC0, 0x39, 0x2B), Color(0xEF, 0x53, 0x50))
                     }
                     text.startsWith("WARNING") -> {
                         icon = AllIcons.General.Warning
-                        foreground = Color(0xD3, 0x54, 0x00)
+                        foreground = com.intellij.ui.JBColor(Color(0xD3, 0x54, 0x00), Color(0xFF, 0xA7, 0x26))
                     }
                     text.startsWith(":app") -> {
                         icon = AllIcons.Nodes.Artifact

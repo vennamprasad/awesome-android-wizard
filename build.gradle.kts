@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "prasad.vennam.awesomeandroidwizard"
-version = "1.1.0"
+version = "1.1.1"
 
 repositories {
     mavenCentral()
@@ -32,7 +32,7 @@ intellijPlatform {
     pluginConfiguration {
         id = "prasad.vennam.awesomeandroidwizard"
         name = "Awesome Android Wizard"
-        version = "1.1.0"
+        version = "1.1.1"
         vendor {
             name = "Prasad Vennam"
             email = "vennamprasad@gmail.com"
@@ -55,6 +55,14 @@ intellijPlatform {
             </ul>
         """.trimIndent()
         changeNotes = """
+            <h3>1.1.1 - Unified Generator Architecture, Architecture Boundary Guard & Enterprise Diagnostics UX</h3>
+            <ul>
+                <li><b>Unified Generator Engine:</b> Centralized package detection, dependency injection, and settings registration in <code>GeneratorUtils</code> across all 9 module and slice generators.</li>
+                <li><b>Clean Architecture Boundary Guard:</b> Advanced rule enforcement detecting direct <code>:core:network</code> encapsulation leaks, cross-feature coupling, and inverted dependencies.</li>
+                <li><b>Project Doctor UX Modernization:</b> Complete overhaul featuring theme-adaptive <code>JBColor</code> (light & dark mode parity), Retina DPI scaling, and official vector <code>AllIcons</code>.</li>
+                <li><b>One-Click Quick Fixes:</b> Actionable diagnostic cards enabling instant installation of Git pre-commit hooks and direct access to Architecture Guard and Version Catalog.</li>
+                <li><b>Live Diagnostics & Report Sharing:</b> Dynamic re-audit toolbar and single-click Markdown diagnostic report export to clipboard.</li>
+            </ul>
             <h3>1.1.0 - Step-by-Step Wizard Two-Way Synchronization, Architecture Dependency Cascading & Enterprise Pre-Flight Validation</h3>
             <ul>
                 <li><b>Wizard Two-Way State Synchronization:</b> Interactive live synchronization across all 5 wizard steps when switching architecture archetypes (Startup, Fintech, Minimal, Custom).</li>

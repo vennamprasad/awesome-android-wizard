@@ -5,14 +5,13 @@ import prasad.vennam.awesomeandroidwizard.model.ArchitectureType
 import prasad.vennam.awesomeandroidwizard.model.DiFramework
 import prasad.vennam.awesomeandroidwizard.model.WizardModel
 import java.io.File
-
 object FeatureModuleGenerator {
 
     data class FeatureGenerationResult(
-        val success: Boolean,
+        override val success: Boolean,
         val featureDir: File,
-        val message: String
-    )
+        override val message: String
+    ) : GeneratorResult
 
     fun scaffoldFeature(
         projectRootDir: File,
@@ -24,8 +23,8 @@ object FeatureModuleGenerator {
             return FeatureGenerationResult(false, projectRootDir, "Invalid feature name.")
         }
 
-        val basePackage = detectBasePackage(projectRootDir) ?: "com.example.app"
-        val effectiveDi = diFramework ?: detectDiFramework(projectRootDir)
+        val basePackage = GeneratorUtils.detectBasePackage(projectRootDir) ?: "com.example.app"
+        val effectiveDi = diFramework ?: GeneratorUtils.detectDiFramework(projectRootDir)
         val pascal = WizardModel.toPascalCase(sanitized)
         val pkgPath = basePackage.replace(".", "/")
 
@@ -35,7 +34,7 @@ object FeatureModuleGenerator {
             projectLocation = projectRootDir.absolutePath,
             architecture = ArchitectureType.MODULAR_CLEAN_MVI,
             diFramework = effectiveDi,
-            useConventionPlugins = File(projectRootDir, "build-logic").exists()
+            useConventionPlugins = GeneratorUtils.hasConventionPlugins(projectRootDir)
         )
 
         // 1. Create module directory
@@ -46,80 +45,25 @@ object FeatureModuleGenerator {
         featureDir.mkdirs()
 
         // 2. Generate build.gradle.kts
-        val buildFile = File(featureDir, "build.gradle.kts")
-        buildFile.writeText(ModulesTemplate.generateFeatureBuildGradle(dummyModel, sanitized))
+        GeneratorUtils.createFile(featureDir, "build.gradle.kts", ModulesTemplate.generateFeatureBuildGradle(dummyModel, sanitized))
 
         // 3. Generate Contract, Screen, ViewModel, and Navigation
         val srcDir = File(featureDir, "src/main/kotlin/$pkgPath/feature/$sanitized")
-        srcDir.mkdirs()
-        File(srcDir, "${pascal}Contract.kt").writeText(ModulesTemplate.generateFeatureContract(dummyModel, sanitized))
-        File(srcDir, "${pascal}Screen.kt").writeText(ModulesTemplate.generateFeatureScreen(dummyModel, sanitized))
-        File(srcDir, "${pascal}ViewModel.kt").writeText(ModulesTemplate.generateFeatureViewModel(dummyModel, sanitized))
-        File(srcDir, "${pascal}Navigation.kt").writeText(ModulesTemplate.generateFeatureNavigation(dummyModel, sanitized))
+        GeneratorUtils.createFile(srcDir, "${pascal}Contract.kt", ModulesTemplate.generateFeatureContract(dummyModel, sanitized))
+        GeneratorUtils.createFile(srcDir, "${pascal}Screen.kt", ModulesTemplate.generateFeatureScreen(dummyModel, sanitized))
+        GeneratorUtils.createFile(srcDir, "${pascal}ViewModel.kt", ModulesTemplate.generateFeatureViewModel(dummyModel, sanitized))
+        GeneratorUtils.createFile(srcDir, "${pascal}Navigation.kt", ModulesTemplate.generateFeatureNavigation(dummyModel, sanitized))
 
         // 4. Update settings.gradle.kts
-        val settingsFile = File(projectRootDir, "settings.gradle.kts")
-        if (settingsFile.exists()) {
-            val settingsText = settingsFile.readText()
-            val includeStatement = "include(\":feature:$sanitized\")"
-            if (!settingsText.contains(includeStatement)) {
-                settingsFile.appendText("\n$includeStatement\n")
-            }
-        }
+        GeneratorUtils.addModuleToSettingsGradle(projectRootDir, ":feature:$sanitized")
 
         // 5. Update app/build.gradle.kts dependencies block
-        val appBuildFile = File(projectRootDir, "app/build.gradle.kts")
-        if (appBuildFile.exists()) {
-            val appBuildText = appBuildFile.readText()
-            val depStatement = "    implementation(project(\":feature:$sanitized\"))"
-            if (!appBuildText.contains(depStatement)) {
-                val updatedText = if (appBuildText.contains("dependencies {")) {
-                    appBuildText.replaceFirst("dependencies {", "dependencies {\n$depStatement")
-                } else {
-                    appBuildText + "\n\ndependencies {\n$depStatement\n}\n"
-                }
-                appBuildFile.writeText(updatedText)
-            }
-        }
+        GeneratorUtils.addDependencyToAppBuildGradle(projectRootDir, "    implementation(project(\":feature:$sanitized\"))")
 
         return FeatureGenerationResult(
             success = true,
             featureDir = featureDir,
             message = "Feature module ':feature:$sanitized' successfully generated and wired!"
         )
-    }
-
-    private fun detectBasePackage(rootDir: File): String? {
-        val appBuildFile = File(rootDir, "app/build.gradle.kts")
-        if (appBuildFile.exists()) {
-            val content = appBuildFile.readText()
-            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
-            val match = namespaceRegex.find(content)
-            if (match != null) {
-                return match.groupValues[1]
-            }
-            val appIdRegex = """applicationId\s*=\s*["']([^"']+)["']""".toRegex()
-            val appMatch = appIdRegex.find(content)
-            if (appMatch != null) {
-                return appMatch.groupValues[1]
-            }
-        }
-        return null
-    }
-
-    private fun detectDiFramework(rootDir: File): DiFramework {
-        val tomlFile = File(rootDir, "gradle/libs.versions.toml")
-        if (tomlFile.exists()) {
-            val tomlText = tomlFile.readText()
-            if (tomlText.contains("hilt")) return DiFramework.HILT
-            if (tomlText.contains("koin")) return DiFramework.KOIN
-        }
-        val appBuild = File(rootDir, "app/build.gradle.kts")
-        if (appBuild.exists()) {
-            val text = appBuild.readText()
-            if (text.contains("hilt")) return DiFramework.HILT
-            if (text.contains("koin")) return DiFramework.KOIN
-        }
-        return DiFramework.KOIN
     }
 }

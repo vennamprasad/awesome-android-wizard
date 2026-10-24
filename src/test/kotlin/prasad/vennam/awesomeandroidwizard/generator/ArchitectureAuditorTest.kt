@@ -116,4 +116,50 @@ class ArchitectureAuditorTest {
         assertFalse(report.isClean)
         assertTrue(report.globalViolations.any { it.contains("Circular dependency") })
     }
+
+    @Test
+    fun testFeatureEncapsulationLeak() {
+        val projectDir = tempFolder.newFolder("FeatureLeakApp")
+
+        File(projectDir, "settings.gradle.kts").writeText("""
+            include(":feature:checkout")
+            include(":core:network")
+        """.trimIndent())
+
+        val checkoutDir = File(projectDir, "feature/checkout").apply { mkdirs() }
+        File(checkoutDir, "build.gradle.kts").writeText("""
+            dependencies {
+                implementation(project(":core:network"))
+            }
+        """.trimIndent())
+
+        val report = ArchitectureAuditor.auditProject(projectDir)
+        assertFalse(report.isClean)
+        val checkoutNode = report.modules.find { it.gradlePath == ":feature:checkout" }
+        assertTrue(checkoutNode != null)
+        assertTrue(checkoutNode!!.violations.any { it.contains("Encapsulation Leak") })
+    }
+
+    @Test
+    fun testCrossFeatureCouplingViolation() {
+        val projectDir = tempFolder.newFolder("CrossFeatureApp")
+
+        File(projectDir, "settings.gradle.kts").writeText("""
+            include(":feature:feed")
+            include(":feature:profile")
+        """.trimIndent())
+
+        val feedDir = File(projectDir, "feature/feed").apply { mkdirs() }
+        File(feedDir, "build.gradle.kts").writeText("""
+            dependencies {
+                implementation(project(":feature:profile"))
+            }
+        """.trimIndent())
+
+        val report = ArchitectureAuditor.auditProject(projectDir)
+        assertFalse(report.isClean)
+        val feedNode = report.modules.find { it.gradlePath == ":feature:feed" }
+        assertTrue(feedNode != null)
+        assertTrue(feedNode!!.violations.any { it.contains("Coupling Warning") })
+    }
 }

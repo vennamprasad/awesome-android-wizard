@@ -203,11 +203,8 @@ object ProjectGenerator {
         return rootDir
     }
 
-    private fun createFile(directory: File, fileName: String, content: String) {
-        directory.mkdirs()
-        val file = File(directory, fileName)
-        file.writeText(content)
-    }
+    private fun createFile(directory: File, fileName: String, content: String): File =
+        GeneratorUtils.createFile(directory, fileName, content)
 
     private fun copyWrapperFiles(rootDir: File) {
         val gradlewDest = File(rootDir, "gradlew")

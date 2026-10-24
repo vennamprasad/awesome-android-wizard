@@ -7,10 +7,10 @@ import java.io.File
 object CoreModuleGenerator {
 
     data class CoreGenerationResult(
-        val success: Boolean,
+        override val success: Boolean,
         val moduleDir: File,
-        val message: String
-    )
+        override val message: String
+    ) : GeneratorResult
 
     fun scaffoldCoreModule(
         projectRootDir: File,
@@ -22,10 +22,10 @@ object CoreModuleGenerator {
             return CoreGenerationResult(false, projectRootDir, "Invalid core module name.")
         }
 
-        val basePackage = detectBasePackage(projectRootDir) ?: "com.example.app"
+        val basePackage = GeneratorUtils.detectBasePackage(projectRootDir) ?: "com.example.app"
         val pascal = WizardModel.toPascalCase(sanitized)
         val pkgPath = basePackage.replace(".", "/")
-        val useConventionPlugins = File(projectRootDir, "build-logic").exists()
+        val useConventionPlugins = GeneratorUtils.hasConventionPlugins(projectRootDir)
 
         // 1. Create directory
         val moduleDir = File(projectRootDir, "core/$sanitized")
@@ -148,7 +148,6 @@ dependencies {
 
         // 3. Generate sample source class
         val srcDir = File(moduleDir, "src/main/kotlin/$pkgPath/core/$sanitized")
-        srcDir.mkdirs()
         val classContent = """
 package $basePackage.core.$sanitized
 
@@ -159,17 +158,10 @@ interface ${pascal}Contract {
     fun getModuleName(): String = ":core:$sanitized"
 }
 """.trimIndent()
-        File(srcDir, "${pascal}Contract.kt").writeText(classContent)
+        GeneratorUtils.createFile(srcDir, "${pascal}Contract.kt", classContent)
 
         // 4. Update settings.gradle.kts
-        val settingsFile = File(projectRootDir, "settings.gradle.kts")
-        if (settingsFile.exists()) {
-            val settingsText = settingsFile.readText()
-            val includeStatement = "include(\":core:$sanitized\")"
-            if (!settingsText.contains(includeStatement)) {
-                settingsFile.appendText("\n$includeStatement\n")
-            }
-        }
+        GeneratorUtils.addModuleToSettingsGradle(projectRootDir, ":core:$sanitized")
 
         return CoreGenerationResult(
             success = true,
@@ -184,23 +176,5 @@ interface ${pascal}Contract {
             .removePrefix(":")
             .lowercase()
             .replace("[^a-z0-9_-]".toRegex(), "")
-    }
-
-    private fun detectBasePackage(rootDir: File): String? {
-        val appBuildFile = File(rootDir, "app/build.gradle.kts")
-        if (appBuildFile.exists()) {
-            val content = appBuildFile.readText()
-            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
-            val match = namespaceRegex.find(content)
-            if (match != null) {
-                return match.groupValues[1]
-            }
-            val appIdRegex = """applicationId\s*=\s*["']([^"']+)["']""".toRegex()
-            val appMatch = appIdRegex.find(content)
-            if (appMatch != null) {
-                return appMatch.groupValues[1]
-            }
-        }
-        return null
     }
 }

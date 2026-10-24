@@ -15,10 +15,10 @@ object RepositorySliceGenerator {
     )
 
     data class RepositoryGenerationResult(
-        val success: Boolean,
+        override val success: Boolean,
         val generatedFiles: List<File>,
-        val message: String
-    )
+        override val message: String
+    ) : GeneratorResult
 
     fun scaffoldRepositorySlice(config: RepositorySliceConfig): RepositoryGenerationResult {
         val sanitized = WizardModel.sanitizeFeatureName(config.entityName)

@@ -53,6 +53,7 @@ object AwesomeVersions {
     // =========================================================================
     const val KOIN: String = "4.0.0"
     const val HILT: String = "2.60.1"
+    const val HILT_NAVIGATION_COMPOSE: String = "1.4.0"
 
     // =========================================================================
     // 7. Networking & HTTP
@@ -119,6 +120,7 @@ object AwesomeVersions {
         "dataStore" to DATASTORE,
         "koin" to KOIN,
         "hilt" to HILT,
+        "hiltNavigationCompose" to HILT_NAVIGATION_COMPOSE,
         "ktor" to KTOR,
         "retrofit" to RETROFIT,
         "okhttp" to OKHTTP,

@@ -95,7 +95,7 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"
             sb.appendLine("""
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "1.4.0" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version = "${AwesomeVersions.HILT_NAVIGATION_COMPOSE}" }
 """.trimIndent())
         }
 

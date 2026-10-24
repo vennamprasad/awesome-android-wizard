@@ -5,10 +5,10 @@ import java.io.File
 object BenchmarkModuleGenerator {
 
     data class BenchmarkGenerationResult(
-        val success: Boolean,
+        override val success: Boolean,
         val benchmarkDir: File,
-        val message: String
-    )
+        override val message: String
+    ) : GeneratorResult
 
     fun scaffoldBenchmarkModule(projectRootDir: File, customPackage: String? = null): BenchmarkGenerationResult {
         val benchmarkDir = File(projectRootDir, "benchmark")
@@ -16,7 +16,7 @@ object BenchmarkModuleGenerator {
             return BenchmarkGenerationResult(false, benchmarkDir, "Module ':benchmark' already exists in this project.")
         }
 
-        val basePackage = customPackage?.takeIf { it.isNotBlank() } ?: detectBasePackage(projectRootDir) ?: "com.example.app"
+        val basePackage = customPackage?.takeIf { it.isNotBlank() } ?: GeneratorUtils.detectBasePackage(projectRootDir) ?: "com.example.app"
         val pkgPath = basePackage.replace(".", "/")
 
         // 1. Create module directory
@@ -148,14 +148,7 @@ class StartupBenchmark {
         File(srcDir, "StartupBenchmark.kt").writeText(startupContent)
 
         // 7. Update settings.gradle.kts
-        val settingsFile = File(projectRootDir, "settings.gradle.kts")
-        if (settingsFile.exists()) {
-            val settingsText = settingsFile.readText()
-            val includeStatement = "include(\":benchmark\")"
-            if (!settingsText.contains(includeStatement)) {
-                settingsFile.appendText("\n$includeStatement\n")
-            }
-        }
+        GeneratorUtils.addModuleToSettingsGradle(projectRootDir, ":benchmark")
 
         // 8. Update app/build.gradle.kts
         val appBuild = File(projectRootDir, "app/build.gradle.kts")
@@ -178,23 +171,5 @@ class StartupBenchmark {
             benchmarkDir = benchmarkDir,
             message = "Baseline Profile & Macrobenchmark module ':benchmark' successfully created!"
         )
-    }
-
-    private fun detectBasePackage(rootDir: File): String? {
-        val appBuildFile = File(rootDir, "app/build.gradle.kts")
-        if (appBuildFile.exists()) {
-            val content = appBuildFile.readText()
-            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
-            val match = namespaceRegex.find(content)
-            if (match != null) {
-                return match.groupValues[1]
-            }
-            val appIdRegex = """applicationId\s*=\s*["']([^"']+)["']""".toRegex()
-            val appMatch = appIdRegex.find(content)
-            if (appMatch != null) {
-                return appMatch.groupValues[1]
-            }
-        }
-        return null
     }
 }

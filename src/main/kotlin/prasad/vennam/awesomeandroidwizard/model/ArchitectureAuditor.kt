@@ -66,6 +66,21 @@ object ArchitectureAuditor {
                 }
             }
 
+            // Clean Architecture Rule 3: Feature modules must not bypass :core:data or couple directly to sister features
+            if (modPath.startsWith(":feature:")) {
+                for (dep in deps) {
+                    if (dep == ":core:network") {
+                        violations.add("Encapsulation Leak: Feature module '$modPath' must not depend directly on ':core:network'. Depend on ':core:data' instead.")
+                    }
+                    if (dep.startsWith(":feature:") && dep != modPath) {
+                        violations.add("Coupling Warning: Direct cross-feature dependency detected ('$modPath' -> '$dep'). Decouple using navigation routes.")
+                    }
+                    if (dep == ":app") {
+                        violations.add("Boundary Violation: Feature module '$modPath' must not depend on ':app'.")
+                    }
+                }
+            }
+
             moduleNodes.add(
                 ModuleNode(
                     gradlePath = modPath,

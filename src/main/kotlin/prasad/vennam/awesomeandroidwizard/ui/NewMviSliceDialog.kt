@@ -11,6 +11,7 @@ import com.intellij.ui.SimpleListCellRenderer
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
+import prasad.vennam.awesomeandroidwizard.generator.GeneratorUtils
 import prasad.vennam.awesomeandroidwizard.generator.MviSliceGenerator
 import prasad.vennam.awesomeandroidwizard.model.DiFramework
 import java.awt.*
@@ -74,7 +75,7 @@ class NewMviSliceDialog(
                 packageField.text = cleanSubPath.replace("/", ".").trimEnd('.')
             }
             else -> {
-                val basePkg = detectBasePackage(rootDir) ?: "com.example.app"
+                val basePkg = GeneratorUtils.detectBasePackage(rootDir) ?: "com.example.app"
                 // Check if feature modules exist
                 val featDir = File(rootDir, "feature")
                 val firstFeat = featDir.listFiles()?.firstOrNull { it.isDirectory }?.name
@@ -85,17 +86,6 @@ class NewMviSliceDialog(
                 }
             }
         }
-    }
-
-    private fun detectBasePackage(rootDir: File): String? {
-        val appBuild = File(rootDir, "app/build.gradle.kts")
-        if (appBuild.exists()) {
-            val content = appBuild.readText()
-            val namespaceRegex = """namespace\s*=\s*["']([^"']+)["']""".toRegex()
-            val match = namespaceRegex.find(content)
-            if (match != null) return match.groupValues[1]
-        }
-        return null
     }
 
     override fun createCenterPanel(): JComponent {
